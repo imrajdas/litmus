@@ -274,6 +274,7 @@ type ComplexityRoot struct {
 		RemoveInvitation       func(childComplexity int, member model.MemberInput) int
 		SaveMyHub              func(childComplexity int, myhubInput model.CreateMyHub, projectID string) int
 		SendInvitation         func(childComplexity int, member model.MemberInput) int
+		SendRequest            func(childComplexity int, agentID *string, message string) int
 		SyncHub                func(childComplexity int, id string) int
 		SyncWorkflow           func(childComplexity int, workflowid string, workflowRunID string) int
 		TerminateChaosWorkflow func(childComplexity int, workflowid *string, workflowRunID *string) int
@@ -741,6 +742,7 @@ type MutationResolver interface {
 	CreateImageRegistry(ctx context.Context, projectID string, imageRegistryInfo model.ImageRegistryInput) (*model.ImageRegistryResponse, error)
 	UpdateImageRegistry(ctx context.Context, imageRegistryID string, projectID string, imageRegistryInfo model.ImageRegistryInput) (*model.ImageRegistryResponse, error)
 	DeleteImageRegistry(ctx context.Context, imageRegistryID string, projectID string) (string, error)
+	SendRequest(ctx context.Context, agentID *string, message string) (string, error)
 }
 type QueryResolver interface {
 	GetWorkflowRuns(ctx context.Context, workflowRunsInput model.GetWorkflowRunsInput) (*model.GetWorkflowsOutput, error)
@@ -2023,6 +2025,18 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.Mutation.SendInvitation(childComplexity, args["member"].(model.MemberInput)), true
+
+	case "Mutation.sendRequest":
+		if e.complexity.Mutation.SendRequest == nil {
+			break
+		}
+
+		args, err := ec.field_Mutation_sendRequest_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Mutation.SendRequest(childComplexity, args["agent_id"].(*string), args["message"].(string)), true
 
 	case "Mutation.syncHub":
 		if e.complexity.Mutation.SyncHub == nil {
@@ -4295,7 +4309,7 @@ func (ec *executionContext) introspectType(name string) (*introspection.Type, er
 }
 
 var sources = []*ast.Source{
-	{Name: "graph/analytics.graphqls", Input: `input DSInput {
+	&ast.Source{Name: "graph/analytics.graphqls", Input: `input DSInput {
   ds_id: String
   ds_name: String!
   ds_type: String!
@@ -4648,7 +4662,7 @@ type PortalDashboardData {
     name: String!
     dashboard_data: String!
 }`, BuiltIn: false},
-	{Name: "graph/image_registry.graphqls", Input: `type imageRegistry {
+	&ast.Source{Name: "graph/image_registry.graphqls", Input: `type imageRegistry {
     is_default: Boolean
     image_registry_name: String!
     image_repo_name: String!
@@ -4678,7 +4692,7 @@ type ImageRegistryResponse {
     is_removed: Boolean
 }
 `, BuiltIn: false},
-	{Name: "graph/myhub.graphqls", Input: `enum AuthType {
+	&ast.Source{Name: "graph/myhub.graphqls", Input: `enum AuthType {
 	none
 	basic
 	token
@@ -4852,7 +4866,7 @@ input UpdateMyHub {
 	SSHPublicKey: String
 }
 `, BuiltIn: false},
-	{Name: "graph/project.graphqls", Input: `type Project {
+	&ast.Source{Name: "graph/project.graphqls", Input: `type Project {
   id: ID!
   name: String!
   members: [Member!]!
@@ -4885,7 +4899,7 @@ enum MemberRole {
   Viewer
 }
 `, BuiltIn: false},
-	{Name: "graph/schema.graphqls", Input: `# GraphQL schema example
+	&ast.Source{Name: "graph/schema.graphqls", Input: `# GraphQL schema example
 #
 # https://gqlgen.com/getting-started/
 
@@ -5199,7 +5213,8 @@ type Query {
 
 type Mutation {
   #It is used to create external cluster.
-  userClusterReg(clusterInput: ClusterInput!): clusterRegResponse! @authorized
+  # userClusterReg(clusterInput: ClusterInput!): clusterRegResponse! @authorized
+  userClusterReg(clusterInput: ClusterInput!): clusterRegResponse!
 
   # Used to create a user
   createUser(user: CreateUserInput!): User! @authorized
@@ -5216,7 +5231,7 @@ type Mutation {
   ## Workflow APIs
   # It is used to create chaosworkflow
   createChaosWorkFlow(input: ChaosWorkFlowInput!): ChaosWorkFlowResponse!
-    @authorized
+  #  @authorized
 
   reRunChaosWorkFlow(workflowID: String!): String! @authorized
 
@@ -5324,6 +5339,9 @@ type Mutation {
 
   deleteImageRegistry(image_registry_id: String!, project_id: String!): String!
     @authorized
+
+  sendRequest(agent_id: String, message: String!): String!
+
 }
 
 type Subscription {
@@ -5347,7 +5365,7 @@ type Subscription {
     dataVariables: dataVars!): dashboardPromResponse! @authorized
 }
 `, BuiltIn: false},
-	{Name: "graph/usage.graphqls", Input: `type WorkflowStat {
+	&ast.Source{Name: "graph/usage.graphqls", Input: `type WorkflowStat {
     Schedules : Int!
     Runs      : Int!
     ExpRuns   : Int!
@@ -5413,7 +5431,7 @@ input UsageQuery{
     Sort: UsageSortInput
     SearchProject: String
 }`, BuiltIn: false},
-	{Name: "graph/usermanagement.graphqls", Input: `type User {
+	&ast.Source{Name: "graph/usermanagement.graphqls", Input: `type User {
   id: ID!
   username: String!
   email: String
@@ -5443,7 +5461,7 @@ input UpdateUserInput {
   company_name: String
 }
 `, BuiltIn: false},
-	{Name: "graph/workflow.graphqls", Input: `enum WorkflowRunStatus {
+	&ast.Source{Name: "graph/workflow.graphqls", Input: `enum WorkflowRunStatus {
   All
   Failed
   Running
@@ -6031,6 +6049,28 @@ func (ec *executionContext) field_Mutation_sendInvitation_args(ctx context.Conte
 		}
 	}
 	args["member"] = arg0
+	return args, nil
+}
+
+func (ec *executionContext) field_Mutation_sendRequest_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	var arg0 *string
+	if tmp, ok := rawArgs["agent_id"]; ok {
+		arg0, err = ec.unmarshalOString2ᚖstring(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["agent_id"] = arg0
+	var arg1 string
+	if tmp, ok := rawArgs["message"]; ok {
+		arg1, err = ec.unmarshalNString2string(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["message"] = arg1
 	return args, nil
 }
 
@@ -11007,28 +11047,8 @@ func (ec *executionContext) _Mutation_userClusterReg(ctx context.Context, field 
 	}
 	fc.Args = args
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		directive0 := func(rctx context.Context) (interface{}, error) {
-			ctx = rctx // use context from middleware stack in children
-			return ec.resolvers.Mutation().UserClusterReg(rctx, args["clusterInput"].(model.ClusterInput))
-		}
-		directive1 := func(ctx context.Context) (interface{}, error) {
-			if ec.directives.Authorized == nil {
-				return nil, errors.New("directive authorized is not implemented")
-			}
-			return ec.directives.Authorized(ctx, nil, directive0)
-		}
-
-		tmp, err := directive1(rctx)
-		if err != nil {
-			return nil, err
-		}
-		if tmp == nil {
-			return nil, nil
-		}
-		if data, ok := tmp.(*model.ClusterRegResponse); ok {
-			return data, nil
-		}
-		return nil, fmt.Errorf(`unexpected type %T from directive, should be *github.com/litmuschaos/litmus/litmus-portal/graphql-server/graph/model.ClusterRegResponse`, tmp)
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Mutation().UserClusterReg(rctx, args["clusterInput"].(model.ClusterInput))
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -11312,28 +11332,8 @@ func (ec *executionContext) _Mutation_createChaosWorkFlow(ctx context.Context, f
 	}
 	fc.Args = args
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		directive0 := func(rctx context.Context) (interface{}, error) {
-			ctx = rctx // use context from middleware stack in children
-			return ec.resolvers.Mutation().CreateChaosWorkFlow(rctx, args["input"].(model.ChaosWorkFlowInput))
-		}
-		directive1 := func(ctx context.Context) (interface{}, error) {
-			if ec.directives.Authorized == nil {
-				return nil, errors.New("directive authorized is not implemented")
-			}
-			return ec.directives.Authorized(ctx, nil, directive0)
-		}
-
-		tmp, err := directive1(rctx)
-		if err != nil {
-			return nil, err
-		}
-		if tmp == nil {
-			return nil, nil
-		}
-		if data, ok := tmp.(*model.ChaosWorkFlowResponse); ok {
-			return data, nil
-		}
-		return nil, fmt.Errorf(`unexpected type %T from directive, should be *github.com/litmuschaos/litmus/litmus-portal/graphql-server/graph/model.ChaosWorkFlowResponse`, tmp)
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Mutation().CreateChaosWorkFlow(rctx, args["input"].(model.ChaosWorkFlowInput))
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -13580,6 +13580,47 @@ func (ec *executionContext) _Mutation_deleteImageRegistry(ctx context.Context, f
 			return data, nil
 		}
 		return nil, fmt.Errorf(`unexpected type %T from directive, should be string`, tmp)
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _Mutation_sendRequest(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:   "Mutation",
+		Field:    field,
+		Args:     nil,
+		IsMethod: true,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	rawArgs := field.ArgumentMap(ec.Variables)
+	args, err := ec.field_Mutation_sendRequest_args(ctx, rawArgs)
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	fc.Args = args
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Mutation().SendRequest(rctx, args["agent_id"].(*string), args["message"].(string))
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -27827,6 +27868,11 @@ func (ec *executionContext) _Mutation(ctx context.Context, sel ast.SelectionSet)
 			}
 		case "deleteImageRegistry":
 			out.Values[i] = ec._Mutation_deleteImageRegistry(ctx, field)
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
+		case "sendRequest":
+			out.Values[i] = ec._Mutation_sendRequest(ctx, field)
 			if out.Values[i] == graphql.Null {
 				invalids++
 			}

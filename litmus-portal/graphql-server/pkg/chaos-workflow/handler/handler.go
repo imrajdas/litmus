@@ -32,20 +32,23 @@ import (
 )
 
 func CreateChaosWorkflow(ctx context.Context, input *model.ChaosWorkFlowInput, r *store.StateData) (*model.ChaosWorkFlowResponse, error) {
-	input, wfType, err := ops.ProcessWorkflow(input)
-	if err != nil {
-		log.Print("Error processing workflow: ", err)
-		return nil, err
-	}
+	//input, wfType, err := ops.ProcessWorkflow(input)
+	//if err != nil {
+	//	log.Print("Error processing workflow: ", err)
+	//	return nil, err
+	//}
 
 	// GitOps Update
-	err = gitOpsHandler.UpsertWorkflowToGit(ctx, input)
-	if err != nil {
-		log.Print("Error performing git push: ", err)
-		return nil, err
-	}
+	//err := gitOpsHandler.UpsertWorkflowToGit(ctx, input)
+	//if err != nil {
+	//	log.Print("Error performing git push: ", err)
+	//	return nil, err
+	//}
 
-	err = ops.ProcessWorkflowCreation(input, wfType, r)
+	uid := uuid.New().String()
+	input.WorkflowID = &uid
+	wf := dbSchemaWorkflow.Workflow
+	err := ops.ProcessWorkflowCreation(input, &wf, r)
 	if err != nil {
 		log.Print("Error executing workflow: ", err)
 		return nil, err
@@ -263,7 +266,7 @@ func QueryWorkflowRuns(input model.GetWorkflowRunsInput) (*model.GetWorkflowsOut
 			pipeline = append(pipeline, matchWfNameStage)
 		}
 
-		// Filtering based on cluster name
+		// Filtering based on cluster-bkp name
 		if input.Filter.ClusterName != nil && *input.Filter.ClusterName != "All" && *input.Filter.ClusterName != "" {
 			matchClusterStage := bson.D{
 				{"$match", bson.D{
@@ -513,7 +516,7 @@ func QueryListWorkflow(workflowInput model.ListWorkflowsInput) (*model.ListWorkf
 			pipeline = append(pipeline, matchWfNameStage)
 		}
 
-		// Filtering based on cluster name
+		// Filtering based on cluster-bkp name
 		if workflowInput.Filter.ClusterName != nil && *workflowInput.Filter.ClusterName != "All" && *workflowInput.Filter.ClusterName != "" {
 			matchClusterStage := bson.D{
 				{"$match", bson.D{
@@ -745,7 +748,7 @@ func LogsHandler(podLog model.PodLog, r store.StateData) (string, error) {
 	return "LOG REQUEST CANCELLED", nil
 }
 
-// GetLogs query is used to fetch the logs from the cluster
+// GetLogs query is used to fetch the logs from the cluster-bkp
 func GetLogs(reqID string, pod model.PodLogRequest, r store.StateData) {
 	data, err := json.Marshal(pod)
 	if err != nil {

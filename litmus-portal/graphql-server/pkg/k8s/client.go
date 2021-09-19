@@ -12,7 +12,7 @@ import (
 
 func GetKubeConfig() (*rest.Config, error) {
 	KubeConfig := os.Getenv("KUBECONFIG")
-	// Use in-cluster config if kubeconfig path is not specified
+	// Use in-cluster-bkp config if kubeconfig path is not specified
 	if KubeConfig == "" {
 		return rest.InClusterConfig()
 	}

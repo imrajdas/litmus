@@ -1,8 +1,11 @@
 package handler
 
 import (
+	"bytes"
+	"encoding/json"
 	"fmt"
 	"log"
+	"net/http"
 	"os"
 	"strconv"
 	"strings"
@@ -23,7 +26,206 @@ import (
 	"github.com/litmuschaos/litmus/litmus-portal/graphql-server/utils"
 )
 
-// ClusterRegister creates an entry for a new cluster in DB and generates the url used to apply manifest
+type PermissionPayload struct {
+	Configure string `json:"configure"`
+	Write     string `json:"write"`
+	Read      string `json:"read"`
+}
+
+type AuthPayload struct {
+	Password string `json:"password"`
+	Tags     string `json:"tags"`
+}
+
+func MQOps(agentID string) (string, error){
+	// create vhost
+	req, err := http.NewRequest("PUT", "http://localhost:15672/api/vhosts/"+agentID, nil)
+	if err != nil {
+		return "", err
+	}
+
+	req.SetBasicAuth("guest", "guest")
+	req.Header.Set("Content-Type", "application/json")
+
+	resp, err := http.DefaultClient.Do(req)
+	if err != nil {
+		return "", err
+	}
+
+	logrus.Print(resp)
+
+	if resp.StatusCode == 200 {
+		logrus.Print("Vhost created")
+	}
+	password := utils.RandomString(5)
+
+	// create user
+	data := AuthPayload{
+		Password: password,
+		Tags: "none",
+	}
+
+	payloadBytes, err := json.Marshal(data)
+	if err != nil {
+		return "", err
+	}
+	body := bytes.NewReader(payloadBytes)
+
+	req, err = http.NewRequest("PUT", "http://localhost:15672/api/users/"+agentID, body)
+	if err != nil {
+		return "", err
+	}
+	req.SetBasicAuth("guest", "guest")
+	req.Header.Set("Content-Type", "application/json")
+
+	resp, err = http.DefaultClient.Do(req)
+	if err != nil {
+		return "", err
+	}
+
+	logrus.Print(resp)
+
+
+	if resp.StatusCode == 200 {
+		logrus.Print("User created")
+	}
+
+
+	AgentPermissionData := PermissionPayload{
+		Configure: ".*",
+		Write: "",
+		Read: ".*",
+	}
+
+	payloadBytes, err = json.Marshal(AgentPermissionData)
+	if err != nil {
+		return "", err
+	}
+	body = bytes.NewReader(payloadBytes)
+
+	req, err = http.NewRequest("PUT", "http://localhost:15672/api/permissions/"+agentID+"/"+agentID, body)
+	if err != nil {
+		return "", err
+	}
+
+	req.SetBasicAuth("guest", "guest")
+	req.Header.Set("Content-Type", "application/json")
+
+
+	resp, err = http.DefaultClient.Do(req)
+	if err != nil {
+		return "", err
+	}
+
+	logrus.Print(resp)
+
+	if resp.StatusCode == 200 {
+		logrus.Print("Agent permission created(1)")
+	}
+
+
+
+	permissionData := PermissionPayload{
+		Configure: ".*",
+		Write: ".*",
+		Read: "",
+	}
+
+
+	payloadBytes, err = json.Marshal(permissionData)
+	if err != nil {
+		return "", err
+	}
+
+	body = bytes.NewReader(payloadBytes)
+
+	req, err = http.NewRequest("PUT", "http://localhost:15672/api/permissions/server/"+agentID, body)
+	if err != nil {
+		return "", err
+	}
+
+	req.SetBasicAuth("guest", "guest")
+	req.Header.Set("Content-Type", "application/json")
+
+	resp, err = http.DefaultClient.Do(req)
+	if err != nil {
+		return "", err
+	}
+
+	logrus.Print(resp)
+
+	if resp.StatusCode == 200 {
+		logrus.Print("Agent permission created(2)")
+	}
+
+	defer resp.Body.Close()
+
+	permissionDataforServer := PermissionPayload{
+		Configure: ".*",
+		Write: ".*",
+		Read: ".*",
+	}
+
+
+	payloadBytes, err = json.Marshal(permissionDataforServer)
+	if err != nil {
+		return "", err
+	}
+
+	body = bytes.NewReader(payloadBytes)
+
+	req, err = http.NewRequest("PUT", "http://localhost:15672/api/permissions/"+agentID+"/server", body)
+	if err != nil {
+		return "", err
+	}
+
+	req.SetBasicAuth("guest", "guest")
+	req.Header.Set("Content-Type", "application/json")
+
+	resp, err = http.DefaultClient.Do(req)
+	if err != nil {
+		return "", err
+	}
+
+	logrus.Print(resp)
+
+	if resp.StatusCode == 200 {
+		logrus.Print("Agent permission created(2)")
+	}
+
+	defer resp.Body.Close()
+
+	//logrus.Print(agentID)
+	//conn, err := amqp.Dial("amqp://server:server@localhost:5672/"+agentID)
+	//if err != nil {
+	//	logrus.Print(err)
+	//}
+	//defer conn.Close()
+	//
+	//logrus.Print("Successfully Connected To our RabbitMQ Instance")
+	//
+	//ch, err := conn.Channel()
+	//if err != nil {
+	//	logrus.Print(err)
+	//}
+	//
+	//_, err = ch.QueueDeclare(
+	//	agentID + "-queue",
+	//	false,
+	//	false,
+	//	false,
+	//	false,
+	//	nil,
+	//)
+	//if err != nil {
+	//	logrus.Print(err)
+	//	panic(err)
+	//}
+
+	return password, nil
+}
+
+// ClusterRegister creates an entry for a new cluster-bkp in DB and generates the url used to apply manifest
 func ClusterRegister(input model.ClusterInput) (*model.ClusterRegResponse, error) {
 	clusterID := uuid.New().String()
 
@@ -47,6 +249,12 @@ func ClusterRegister(input model.ClusterInput) (*model.ClusterRegResponse, error
 		}
 	}
 
+	pass, err := MQOps(clusterID)
+	if err != nil {
+		return &model.ClusterRegResponse{}, err
+	}
+
+
 	newCluster := dbSchemaCluster.Cluster{
 		ClusterID:      clusterID,
 		ClusterName:    input.ClusterName,
@@ -65,6 +273,9 @@ func ClusterRegister(input model.ClusterInput) (*model.ClusterRegResponse, error
 		Token:          token,
 		IsRemoved:      false,
 		NodeSelector:   input.NodeSelector,
+		MQ_URL: "amqp://localhost:5672",
+		MQ_PASS: pass,
+		MQ_USER: clusterID,
 	}
 
 	err = dbOperationsCluster.InsertCluster(newCluster)
@@ -73,6 +284,7 @@ func ClusterRegister(input model.ClusterInput) (*model.ClusterRegResponse, error
 	}
 
 	logrus.Print("New Agent Registered with ID: ", clusterID, " PROJECT_ID: ", input.ProjectID)
+
 
 	return &model.ClusterRegResponse{
 		ClusterID:   newCluster.ClusterID,
@@ -111,7 +323,7 @@ func ConfirmClusterRegistration(identity model.ClusterIdentity, r store.StateDat
 		copier.Copy(&newCluster, &cluster)
 
 		log.Print("Cluster Confirmed having ID: ", cluster.ClusterID, ", PID: ", cluster.ProjectID)
-		SendClusterEvent("cluster-registration", "New Cluster", "New Cluster registration", newCluster, r)
+		SendClusterEvent("cluster-bkp-registration", "New Cluster", "New Cluster registration", newCluster, r)
 
 		return &model.ClusterConfirmResponse{IsClusterConfirmed: true, NewAccessKey: &newKey, ClusterID: &cluster.ClusterID}, err
 	}
@@ -131,14 +343,14 @@ func NewEvent(clusterEvent model.ClusterEventInput, r store.StateData) (string, 
 		newCluster := model.Cluster{}
 		copier.Copy(&newCluster, &cluster)
 
-		SendClusterEvent("cluster-event", clusterEvent.EventName, clusterEvent.Description, newCluster, r)
+		SendClusterEvent("cluster-bkp-event", clusterEvent.EventName, clusterEvent.Description, newCluster, r)
 		return "Event Published", nil
 	}
 
 	return "", errors.New("ERROR WITH CLUSTER EVENT")
 }
 
-// DeleteCluster takes clusterID and r parameters, deletes the cluster from the database and sends a request to the subscriber for clean-up
+// DeleteCluster takes clusterID and r parameters, deletes the cluster-bkp from the database and sends a request to the subscriber for clean-up
 func DeleteCluster(clusterID string, r store.StateData) (string, error) {
 	time := strconv.FormatInt(time.Now().Unix(), 10)
 
@@ -183,7 +395,7 @@ func DeleteCluster(clusterID string, r store.StateData) (string, error) {
 		}, r)
 	}
 
-	return "Successfully deleted cluster", nil
+	return "Successfully deleted cluster-bkp", nil
 }
 
 // QueryGetClusters takes a projectID and clusterType to filter and return a list of clusters
@@ -241,7 +453,7 @@ func SendClusterEvent(eventType, eventName, description string, cluster model.Cl
 
 // SendRequestToSubscriber sends events from the graphQL server to the subscribers listening for the requests
 func SendRequestToSubscriber(subscriberRequest clusterOps.SubscriberRequests, r store.StateData) {
-	if os.Getenv("AGENT_SCOPE") == "cluster" {
+	if os.Getenv("AGENT_SCOPE") == "cluster-bkp" {
 		/*
 			namespace = Obtain from WorkflowManifest or
 			from frontend as a separate workflowNamespace field under ChaosWorkFlowInput model
@@ -265,4 +477,11 @@ func SendRequestToSubscriber(subscriberRequest clusterOps.SubscriberRequests, r 
 	}
 
 	r.Mutex.Unlock()
+}
+
+
+func SendRequestToAgent(agent_id *string, message string) string {
+
+
+		return "message delivered."
 }

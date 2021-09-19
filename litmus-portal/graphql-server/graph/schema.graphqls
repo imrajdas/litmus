@@ -312,7 +312,8 @@ type Query {
 
 type Mutation {
   #It is used to create external cluster.
-  userClusterReg(clusterInput: ClusterInput!): clusterRegResponse! @authorized
+  # userClusterReg(clusterInput: ClusterInput!): clusterRegResponse! @authorized
+  userClusterReg(clusterInput: ClusterInput!): clusterRegResponse!
 
   # Used to create a user
   createUser(user: CreateUserInput!): User! @authorized
@@ -329,7 +330,7 @@ type Mutation {
   ## Workflow APIs
   # It is used to create chaosworkflow
   createChaosWorkFlow(input: ChaosWorkFlowInput!): ChaosWorkFlowResponse!
-    @authorized
+  #  @authorized
 
   reRunChaosWorkFlow(workflowID: String!): String! @authorized
 
@@ -437,6 +438,9 @@ type Mutation {
 
   deleteImageRegistry(image_registry_id: String!, project_id: String!): String!
     @authorized
+
+  sendRequest(agent_id: String, message: String!): String!
+
 }
 
 type Subscription {

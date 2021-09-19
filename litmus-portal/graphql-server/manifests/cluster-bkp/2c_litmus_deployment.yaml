@@ -30,7 +30,7 @@ spec:
         app.kubernetes.io/managed-by: kubectl
         name: chaos-operator
     spec:
-      serviceAccountName: litmus-cluster-scope
+      serviceAccountName: litmus-cluster-bkp-scope
       #{nodeselector}
       containers:
         - name: chaos-operator
@@ -84,7 +84,7 @@ spec:
           env:
             - name: TSDB_SCRAPE_INTERVAL
               value: '10'
-      serviceAccountName: litmus-cluster-scope
+      serviceAccountName: litmus-cluster-bkp-scope
 ---
 apiVersion: v1
 kind: Service

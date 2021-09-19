@@ -11,7 +11,7 @@ import (
 	"github.com/litmuschaos/litmus/litmus-portal/graphql-server/graph/model"
 )
 
-// VerifyCluster utils function used to verify cluster identity
+// VerifyCluster utils function used to verify cluster-bkp identity
 func VerifyCluster(identity model.ClusterIdentity) (*dbSchemaCluster.Cluster, error) {
 	currentVersion := os.Getenv("VERSION")
 	if currentVersion != identity.Version {

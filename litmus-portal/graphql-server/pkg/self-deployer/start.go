@@ -12,7 +12,7 @@ import (
 	"github.com/litmuschaos/litmus/litmus-portal/graphql-server/graph/model"
 )
 
-// StartDeployer registers a new internal self-cluster and starts the deployer
+// StartDeployer registers a new internal self-cluster-bkp and starts the deployer
 func StartDeployer(projectID string) {
 	var (
 		isAllManifestInstall = true

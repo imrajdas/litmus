@@ -12,7 +12,7 @@ var (
 	backgroundContext = context.Background()
 )
 
-// InsertCluster takes details of a cluster and inserts into the database collection
+// InsertCluster takes details of a cluster-bkp and inserts into the database collection
 func InsertCluster(cluster Cluster) error {
 	ctx, _ := context.WithTimeout(backgroundContext, 10*time.Second)
 	err := mongodb.Operator.Create(ctx, mongodb.ClusterCollection, cluster)
@@ -23,7 +23,7 @@ func InsertCluster(cluster Cluster) error {
 	return nil
 }
 
-// GetCluster takes a clusterID to retrieve the cluster details from the database
+// GetCluster takes a clusterID to retrieve the cluster-bkp details from the database
 func GetCluster(clusterID string) (Cluster, error) {
 	ctx, _ := context.WithTimeout(backgroundContext, 10*time.Second)
 	query := bson.D{{"cluster_id", clusterID}}
@@ -38,7 +38,7 @@ func GetCluster(clusterID string) (Cluster, error) {
 	return cluster, nil
 }
 
-// UpdateCluster takes query and update parameters to update the cluster details in the database
+// UpdateCluster takes query and update parameters to update the cluster-bkp details in the database
 func UpdateCluster(query bson.D, update bson.D) error {
 	ctx, _ := context.WithTimeout(backgroundContext, 10*time.Second)
 
@@ -50,7 +50,7 @@ func UpdateCluster(query bson.D, update bson.D) error {
 	return nil
 }
 
-// GetClusterWithProjectID takes projectID and clusterType parameters to retrieve the cluster details from the database
+// GetClusterWithProjectID takes projectID and clusterType parameters to retrieve the cluster-bkp details from the database
 func GetClusterWithProjectID(projectID string, clusterType *string) ([]*Cluster, error) {
 
 	var query bson.D

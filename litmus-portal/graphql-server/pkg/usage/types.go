@@ -7,7 +7,7 @@ type WorkflowStat struct {
 }
 type AgentStat struct {
 	Ns      int `bson:"ns"`
-	Cluster int `bson:"cluster"`
+	Cluster int `bson:"cluster-bkp"`
 	Total   int `bson:"total"`
 	Active  int `bson:"active"`
 }

@@ -1,6 +1,6 @@
 package cluster
 
-// Cluster contains the required fields to be stored in the database for a cluster
+// Cluster contains the required fields to be stored in the database for a cluster-bkp
 type Cluster struct {
 	ClusterID          string  `bson:"cluster_id"`
 	ProjectID          string  `bson:"project_id"`
@@ -22,4 +22,7 @@ type Cluster struct {
 	Token              string  `bson:"token"`
 	IsRemoved          bool    `bson:"is_removed"`
 	NodeSelector       *string `json:"node_selector"`
+	MQ_URL			   string `json:"mq_url"`
+	MQ_USER			   string	`json:"mq_user"`
+	MQ_PASS		       string	`json:"mq_pass"`
 }

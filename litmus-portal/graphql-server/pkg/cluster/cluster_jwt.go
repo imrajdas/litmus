@@ -10,7 +10,7 @@ import (
 
 var secret = os.Getenv("JWT_SECRET")
 
-// ClusterCreateJWT generates jwt used in cluster registration
+// ClusterCreateJWT generates jwt used in cluster-bkp registration
 func ClusterCreateJWT(id string) (string, error) {
 	claims := jwt.MapClaims{}
 	claims["cluster_id"] = id
@@ -24,7 +24,7 @@ func ClusterCreateJWT(id string) (string, error) {
 	return tokenString, nil
 }
 
-// ClusterValidateJWT validates the cluster jwt
+// ClusterValidateJWT validates the cluster-bkp jwt
 func ClusterValidateJWT(token string) (string, error) {
 	tkn, err := jwt.Parse(token, func(token *jwt.Token) (interface{}, error) {
 		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {

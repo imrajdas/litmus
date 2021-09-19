@@ -21,6 +21,7 @@ require (
 	github.com/prometheus/common v0.24.0
 	github.com/rs/cors v1.6.0
 	github.com/sirupsen/logrus v1.6.0
+	github.com/streadway/amqp v0.0.0-20190827072141-edfb9018d271 // indirect
 	github.com/tidwall/gjson v1.8.1
 	github.com/tidwall/sjson v1.1.1
 	github.com/vektah/gqlparser/v2 v2.0.1

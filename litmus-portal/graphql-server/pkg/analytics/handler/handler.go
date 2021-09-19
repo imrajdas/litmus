@@ -177,7 +177,7 @@ func CreateDashboard(dashboard *model.CreateDBInput) (*model.ListDashboardRespon
 
 	cluster, err := dbOperationsCluster.GetCluster(dashboard.ClusterID)
 	if err != nil {
-		return nil, fmt.Errorf("error on querying from cluster collection: %v\n", err)
+		return nil, fmt.Errorf("error on querying from cluster-bkp collection: %v\n", err)
 	}
 
 	newDBResponse.ClusterName = &cluster.ClusterName
@@ -1070,7 +1070,7 @@ func QueryListDashboard(projectID string, clusterID *string, dbID *string) ([]*m
 
 		cluster, err := dbOperationsCluster.GetCluster(dashboard.ClusterID)
 		if err != nil {
-			return nil, fmt.Errorf("error on querying from cluster collection: %v\n", err)
+			return nil, fmt.Errorf("error on querying from cluster-bkp collection: %v\n", err)
 		}
 
 		dashboard.ClusterName = &cluster.ClusterName

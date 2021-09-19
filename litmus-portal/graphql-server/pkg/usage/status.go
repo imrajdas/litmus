@@ -96,10 +96,10 @@ func usageHelper(ctx context.Context, query model.UsageQuery) (AggregateData, er
 	pipeline := mongo.Pipeline{
 		bson.D{
 			{"$lookup", bson.M{
-				"from":         "cluster-collection",
+				"from":         "cluster-bkp-collection",
 				"localField":   "_id",
 				"foreignField": "project_id",
-				"as":           "cluster",
+				"as":           "cluster-bkp",
 			}},
 		},
 		bson.D{
@@ -175,29 +175,29 @@ func usageHelper(ctx context.Context, query model.UsageQuery) (AggregateData, er
 			"agents": bson.M{"ns": bson.M{
 				"$size": bson.M{
 					"$filter": bson.M{
-						"input": "$cluster",
-						"as":    "cluster",
+						"input": "$cluster-bkp",
+						"as":    "cluster-bkp",
 						"cond": bson.M{"$and": bson.A{
 							bson.M{
-								"$eq": bson.A{"$$cluster.agent_scope", "namespace"},
+								"$eq": bson.A{"$$cluster-bkp.agent_scope", "namespace"},
 							},
 							bson.M{
-								"$eq": bson.A{"$$cluster.is_removed", false},
+								"$eq": bson.A{"$$cluster-bkp.is_removed", false},
 							},
 						},
 						},
 					}}},
-				"cluster": bson.M{
+				"cluster-bkp": bson.M{
 					"$size": bson.M{
 						"$filter": bson.M{
-							"input": "$cluster",
-							"as":    "cluster",
+							"input": "$cluster-bkp",
+							"as":    "cluster-bkp",
 							"cond": bson.M{"$and": bson.A{
 								bson.M{
-									"$eq": bson.A{"$$cluster.agent_scope", "cluster"},
+									"$eq": bson.A{"$$cluster-bkp.agent_scope", "cluster-bkp"},
 								},
 								bson.M{
-									"$eq": bson.A{"$$cluster.is_removed", false},
+									"$eq": bson.A{"$$cluster-bkp.is_removed", false},
 								},
 							},
 							},
@@ -205,22 +205,22 @@ func usageHelper(ctx context.Context, query model.UsageQuery) (AggregateData, er
 				"total": bson.M{
 					"$size": bson.M{
 						"$filter": bson.M{
-							"input": "$cluster",
-							"as":    "cluster",
-							"cond":  bson.M{"$eq": bson.A{"$$cluster.is_removed", false}},
+							"input": "$cluster-bkp",
+							"as":    "cluster-bkp",
+							"cond":  bson.M{"$eq": bson.A{"$$cluster-bkp.is_removed", false}},
 						}},
 				},
 				"active": bson.M{
 					"$size": bson.M{
 						"$filter": bson.M{
-							"input": "$cluster",
-							"as":    "cluster",
+							"input": "$cluster-bkp",
+							"as":    "cluster-bkp",
 							"cond": bson.M{"$and": bson.A{
 								bson.M{
-									"$eq": bson.A{"$$cluster.is_active", true},
+									"$eq": bson.A{"$$cluster-bkp.is_active", true},
 								},
 								bson.M{
-									"$eq": bson.A{"$$cluster.is_removed", false},
+									"$eq": bson.A{"$$cluster-bkp.is_removed", false},
 								},
 							},
 							}},
@@ -249,7 +249,7 @@ func usageHelper(ctx context.Context, query model.UsageQuery) (AggregateData, er
 						"projects":  bson.M{"$sum": 1},
 						"users":     bson.M{"$sum": 1},
 						"ns":        bson.M{"$sum": "$agents.ns"},
-						"cluster":   bson.M{"$sum": "$agents.cluster"},
+						"cluster-bkp":   bson.M{"$sum": "$agents.cluster-bkp"},
 						"total":     bson.M{"$sum": "$agents.total"},
 						"active":    bson.M{"$sum": "$agents.active"},
 						"schedules": bson.M{"$sum": "$workflows.schedules"},
@@ -259,7 +259,7 @@ func usageHelper(ctx context.Context, query model.UsageQuery) (AggregateData, er
 					bson.M{"$project": bson.M{"projects": 1, "users": 1,
 						"agents": bson.M{
 							"ns":      "$ns",
-							"cluster": "$cluster",
+							"cluster-bkp": "$cluster-bkp",
 							"total":   "$total",
 							"active":  "$active",
 						},

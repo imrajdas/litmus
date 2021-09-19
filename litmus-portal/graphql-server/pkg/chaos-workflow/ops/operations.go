@@ -3,6 +3,8 @@ package ops
 import (
 	"encoding/json"
 	"errors"
+	"github.com/sirupsen/logrus"
+	"github.com/streadway/amqp"
 	"os"
 	"strconv"
 	"strings"
@@ -33,14 +35,14 @@ import (
 
 // ProcessWorkflow takes the workflow and processes it as required
 func ProcessWorkflow(workflow *model.ChaosWorkFlowInput) (*model.ChaosWorkFlowInput, *dbSchemaWorkflow.ChaosWorkflowType, error) {
-	// security check for cluster access
+	// security check for cluster-bkp access
 	cluster, err := dbOperationsCluster.GetCluster(workflow.ClusterID)
 	if err != nil {
 		return nil, nil, err
 	}
 
 	if cluster.ProjectID != workflow.ProjectID {
-		return nil, nil, errors.New("cluster doesn't belong to this project")
+		return nil, nil, errors.New("cluster-bkp doesn't belong to this project")
 	}
 
 	wfType := dbSchemaWorkflow.Workflow
@@ -117,39 +119,104 @@ func ProcessWorkflowCreation(input *model.ChaosWorkFlowInput, wfType *dbSchemaWo
 		copier.Copy(&Weightages, &input.Weightages)
 	}
 
-	// Get cluster information
+
+	// Get cluster-bkp information
 	cluster, err := dbOperationsCluster.GetCluster(input.ClusterID)
 	if err != nil {
 		return err
 	}
 
-	newChaosWorkflow := dbSchemaWorkflow.ChaosWorkFlowInput{
-		WorkflowID:          *input.WorkflowID,
-		WorkflowManifest:    input.WorkflowManifest,
-		CronSyntax:          input.CronSyntax,
-		WorkflowName:        input.WorkflowName,
-		WorkflowDescription: input.WorkflowDescription,
-		WorkflowType:        *wfType,
-		IsCustomWorkflow:    input.IsCustomWorkflow,
-		ProjectID:           input.ProjectID,
-		ClusterID:           input.ClusterID,
-		ClusterName:         cluster.ClusterName,
-		ClusterType:         cluster.ClusterType,
-		Weightages:          Weightages,
-		CreatedAt:           strconv.FormatInt(time.Now().Unix(), 10),
-		UpdatedAt:           strconv.FormatInt(time.Now().Unix(), 10),
-		WorkflowRuns:        []*dbSchemaWorkflow.ChaosWorkflowRun{},
-		IsRemoved:           false,
-	}
 
-	err = dbOperationsWorkflow.InsertChaosWorkflow(newChaosWorkflow)
-	if err != nil {
-		return err
-	}
+	//newChaosWorkflow := dbSchemaWorkflow.ChaosWorkFlowInput{
+	//	WorkflowID:          *input.WorkflowID,
+	//	WorkflowManifest:    input.WorkflowManifest,
+	//	CronSyntax:          input.CronSyntax,
+	//	WorkflowName:        input.WorkflowName,
+	//	WorkflowDescription: input.WorkflowDescription,
+	//	WorkflowType:        dbSchemaWorkflow.Workflow,
+	//	IsCustomWorkflow:    input.IsCustomWorkflow,
+	//	ProjectID:           input.ProjectID,
+	//	ClusterID:           input.ClusterID,
+	//	ClusterName:         cluster.ClusterName,
+	//	ClusterType:         cluster.ClusterType,
+	//	Weightages:          Weightages,
+	//	CreatedAt:           strconv.FormatInt(time.Now().Unix(), 10),
+	//	UpdatedAt:           strconv.FormatInt(time.Now().Unix(), 10),
+	//	WorkflowRuns:        []*dbSchemaWorkflow.ChaosWorkflowRun{},
+	//	IsRemoved:           false,
+	//}
+	//
+	//logrus.Print(newChaosWorkflow)
+	//logrus.Print("here4")
+	//
+	//err = dbOperationsWorkflow.InsertChaosWorkflow(newChaosWorkflow)
+	//if err != nil {
+	//	logrus.Print("here5")
+	//
+	//	return err
+	//}
 
-	if r != nil {
-		SendWorkflowToSubscriber(input, nil, "create", r)
-	}
+
+
+	logrus.Info("successfully inserted to workflow collection")
+
+	//if r != nil {
+		conn, err := amqp.Dial("amqp://guest:guest@localhost:5672/" + cluster.ClusterID)
+		if err != nil {
+			logrus.Print(err)
+		}
+		defer conn.Close()
+
+		ch, err := conn.Channel()
+		if err != nil {
+			logrus.Print(err)
+		}
+
+		defer ch.Close()
+		_, err = ch.QueueDeclare(
+			cluster.ClusterID + "-queue",
+			false,
+			false,
+			false,
+			false,
+			nil,
+		)
+		if err != nil {
+			logrus.Print(err)
+			panic(err)
+		}
+
+		newAction := &model.ClusterAction{
+			ProjectID: input.ProjectID,
+			Action: &model.ActionPayload{
+				K8sManifest:  input.WorkflowManifest,
+				Namespace:    *cluster.AgentNamespace,
+				RequestType:  "create",
+			},
+		}
+
+		json, err := json.Marshal(newAction)
+		if err != nil {
+			logrus.Print(err)
+		}
+
+		//logrus.Print(newAction.Action)
+		err = ch.Publish(
+			"",
+			input.ClusterID + "-queue",
+			false,
+			false,
+			amqp.Publishing{
+				ContentType: "text/plain",
+				Body:        []byte(string(json)),
+			},
+		)
+
+		if err != nil {
+			logrus.Println(err)
+		}
+		logrus.Println("Successfully Published Message to Queue")
+	//}
 
 	return nil
 }

@@ -25,7 +25,7 @@ var (
 	AgentNamespace  = os.Getenv("AGENT_NAMESPACE")
 )
 
-// This function handles cluster operations
+// This function handles cluster-bkp operations
 func ClusterResource(manifest string, namespace string) (*unstructured.Unstructured, error) {
 	// Getting dynamic and discovery client
 	discoveryClient, dynamicClient, err := GetDynamicAndDiscoveryClient()
@@ -54,7 +54,7 @@ func ClusterResource(manifest string, namespace string) (*unstructured.Unstructu
 		// namespaced resources should specify the namespace
 		dr = dynamicClient.Resource(mapping.Resource).Namespace(namespace)
 	} else {
-		// for cluster-wide resources
+		// for cluster-bkp-wide resources
 		dr = dynamicClient.Resource(mapping.Resource)
 	}
 

@@ -64,10 +64,10 @@ func (r *mutationResolver) UpdateUser(ctx context.Context, user model.UpdateUser
 }
 
 func (r *mutationResolver) CreateChaosWorkFlow(ctx context.Context, input model.ChaosWorkFlowInput) (*model.ChaosWorkFlowResponse, error) {
-	err := authorization.ValidateRole(ctx, input.ProjectID, []model.MemberRole{model.MemberRoleOwner, model.MemberRoleEditor}, usermanagement.AcceptedInvitation)
-	if err != nil {
-		return nil, err
-	}
+	//err := authorization.ValidateRole(ctx, input.ProjectID, []model.MemberRole{model.MemberRoleOwner, model.MemberRoleEditor}, usermanagement.AcceptedInvitation)
+	//if err != nil {
+	//	return nil, err
+	//}
 	return wfHandler.CreateChaosWorkflow(ctx, &input, data_store.Store)
 }
 
@@ -333,6 +333,10 @@ func (r *mutationResolver) DeleteImageRegistry(ctx context.Context, imageRegistr
 	return diRegistry, err
 }
 
+func (r *mutationResolver) SendRequest(ctx context.Context, agentID *string, message string) (string, error) {
+	return clusterHandler.SendRequestToAgent(agentID, message), nil
+}
+
 func (r *queryResolver) GetWorkflowRuns(ctx context.Context, workflowRunsInput model.GetWorkflowRunsInput) (*model.GetWorkflowsOutput, error) {
 	err := authorization.ValidateRole(ctx, workflowRunsInput.ProjectID, []model.MemberRole{model.MemberRoleOwner, model.MemberRoleEditor, model.MemberRoleViewer}, usermanagement.AcceptedInvitation)
 	if err != nil {
@@ -579,7 +583,7 @@ func (r *subscriptionResolver) ClusterConnect(ctx context.Context, clusterInfo m
 		newVerifiedCluster := model.Cluster{}
 		copier.Copy(&newVerifiedCluster, &verifiedCluster)
 
-		clusterHandler.SendClusterEvent("cluster-status", "Cluster Offline", "Cluster Disconnect", newVerifiedCluster, *data_store.Store)
+		clusterHandler.SendClusterEvent("cluster-bkp-status", "Cluster Offline", "Cluster Disconnect", newVerifiedCluster, *data_store.Store)
 
 		data_store.Store.Mutex.Lock()
 		delete(data_store.Store.ConnectedCluster, clusterInfo.ClusterID)
@@ -605,7 +609,7 @@ func (r *subscriptionResolver) ClusterConnect(ctx context.Context, clusterInfo m
 	copier.Copy(&newVerifiedCluster, &verifiedCluster)
 
 	verifiedCluster.IsActive = true
-	clusterHandler.SendClusterEvent("cluster-status", "Cluster Live", "Cluster is Live and Connected", newVerifiedCluster, *data_store.Store)
+	clusterHandler.SendClusterEvent("cluster-bkp-status", "Cluster Live", "Cluster is Live and Connected", newVerifiedCluster, *data_store.Store)
 	return clusterAction, nil
 }
 

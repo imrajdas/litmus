@@ -58,7 +58,7 @@ func GetManifest(token string) ([]byte, int, error) {
 		return nil, 500, err
 	}
 
-	if os.Getenv("PORTAL_SCOPE") == "cluster" {
+	if os.Getenv("PORTAL_SCOPE") == "cluster-bkp" {
 		subscriberConfiguration.GQLServerURI, err = k8s.GetServerEndpoint()
 		if err != nil {
 			return nil, 500, err
