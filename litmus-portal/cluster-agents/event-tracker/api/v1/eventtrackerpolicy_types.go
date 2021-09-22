@@ -25,7 +25,7 @@ import (
 
 // EventTrackerPolicySpec defines the desired state of EventTrackerPolicy
 type EventTrackerPolicySpec struct {
-	// INSERT ADDITIONAL SPEC FIELDS - desired state of cluster
+	// INSERT ADDITIONAL SPEC FIELDS - desired state of cluster-bkp
 	// Important: Run "make" to regenerate code after modifying this file
 
 	// Foo is an example field of EventTrackerPolicy. Edit EventTrackerPolicy_types.go to remove/update
@@ -41,7 +41,7 @@ type Condition struct {
 
 // EventTrackerPolicyStatus defines the observed state of EventTrackerPolicy
 type EventTrackerPolicyStatus struct {
-	// INSERT ADDITIONAL STATUS FIELD - define observed state of cluster
+	// INSERT ADDITIONAL STATUS FIELD - define observed state of cluster-bkp
 	// Important: Run "make" to regenerate code after modifying this file
 	TimeStamp    string `json:"time_stamp,omitempty"`
 	Resource     string `json:"resource,omitempty"`

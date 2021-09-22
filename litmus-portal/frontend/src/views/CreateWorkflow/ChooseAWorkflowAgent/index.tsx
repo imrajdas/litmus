@@ -125,7 +125,7 @@ const ChooseWorkflowAgent = forwardRef((_, ref) => {
       if (data && data.getCluster.length !== 0) {
         data.getCluster.forEach((e: Cluster) => {
           if (e.is_active === true) {
-            // Populating all the cluster data in the clusters[] array
+            // Populating all the cluster-bkp data in the clusters[] array
             clusters.push({
               cluster_name: e.cluster_name,
               is_active: e.is_active,
@@ -169,7 +169,7 @@ const ChooseWorkflowAgent = forwardRef((_, ref) => {
     return true;
   }
 
-  // Rendering once to get the cluster data
+  // Rendering once to get the cluster-bkp data
   useEffect(() => {
     getCluster({ variables: { project_id: selectedProjectID } });
   }, []);

@@ -22,7 +22,7 @@ spec:
           imagePullPolicy: 'Always'
           env:
             - name: DATA_SOURCE_NAME
-              value: 'root:root_password@(cluster1-haproxy.pxc.svc.cluster.local:3306)/'
+              value: 'root:root_password@(cluster1-haproxy.pxc.svc.cluster-bkp.local:3306)/'
           args:
             - '--collect.info_schema.processlist'
             - '--collect.info_schema.innodb_metrics'

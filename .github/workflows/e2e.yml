@@ -102,7 +102,7 @@ jobs:
             **Test Status:** The testing has been started please wait for the results ...
 
       - name: Setting up KinD Cluster
-        run: kind create cluster --wait 5m
+        run: kind create cluster-bkp --wait 5m
 
       - name: Configuring and Testing the Cluster Installation
         run: |
@@ -214,6 +214,6 @@ jobs:
         env:
           RUN_ID: ${{ github.run_id }}
 
-      - name: Deleting KinD cluster
+      - name: Deleting KinD cluster-bkp
         if: always()
-        run: kind delete cluster
+        run: kind delete cluster-bkp

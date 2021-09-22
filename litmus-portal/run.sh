@@ -2,9 +2,11 @@
 
 # ENV VAR SETUP
 export DB_SERVER=mongodb://localhost:27017
+export DB_USER=admin
+export DB_PASSWORD=1234
 export JWT_SECRET=litmus-portal@123
 export PORTAL_ENDPOINT=http://localhost:8080
-export SELF_CLUSTER=false # self-cluster needs k8s env
+export SELF_CLUSTER=false # self-cluster-bkp needs k8s env
 export AGENT_SCOPE=cluster
 export AGENT_NAMESPACE=litmus
 export LITMUS_PORTAL_NAMESPACE=litmus
@@ -19,8 +21,6 @@ export LITMUS_CHAOS_RUNNER_IMAGE=litmuschaos/chaos-runner:2.0.0
 export LITMUS_CHAOS_EXPORTER_IMAGE=litmuschaos/chaos-exporter:2.0.0
 export ADMIN_USERNAME=admin
 export ADMIN_PASSWORD=litmus
-export DB_USER=admin
-export DB_PASSWORD=1234
 export VERSION=ci
 export HUB_BRANCH_NAME=v2.0.x
 export AGENT_DEPLOYMENTS="[\"app=chaos-exporter\", \"name=chaos-operator\", \"app=event-tracker\", \"app=workflow-controller\"]" 

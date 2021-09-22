@@ -73,15 +73,15 @@ func ClusterConnect(clusterData map[string]string) {
 			logrus.WithError(err).Fatal("error un-marshaling request payload")
 		}
 
-		if r.Type == "connection_ack" {
-			logrus.Info("Cluster Connect Established, Listening....")
-		}
-		if r.Type != "data" {
-			continue
-		}
-		if r.Payload.Errors != nil {
-			logrus.Fatal("graphql error : ", string(message))
-		}
+		//if r.Type == "connection_ack" {
+		//	logrus.Info("Cluster Connect Established, Listening....")
+		//}
+		//if r.Type != "data" {
+		//	continue
+		//}
+		//if r.Payload.Errors != nil {
+		//	logrus.Fatal("graphql error : ", string(message))
+		//}
 
 		err = RequestProcessor(clusterData, r)
 		if err != nil {
@@ -91,12 +91,12 @@ func ClusterConnect(clusterData map[string]string) {
 }
 
 func RequestProcessor(clusterData map[string]string, r types.RawData) error {
-	if strings.Index("kubeobject kubeobjects", strings.ToLower(r.Payload.Data.ClusterConnect.Action.RequestType)) >= 0 {
+	if strings.Index("kubeobject kubeobjects", strings.ToLower(r.Action.RequestType)) >= 0 {
 		KubeObjRequest := types.KubeObjRequest{
-			RequestID: r.Payload.Data.ClusterConnect.ProjectID,
+			RequestID: r.ProjectID,
 		}
 
-		err := json.Unmarshal([]byte(r.Payload.Data.ClusterConnect.Action.ExternalData), &KubeObjRequest)
+		err := json.Unmarshal([]byte(r.Action.ExternalData), &KubeObjRequest)
 		if err != nil {
 			return errors.New("failed to json unmarshal: " + err.Error())
 		}
@@ -106,26 +106,26 @@ func RequestProcessor(clusterData map[string]string, r types.RawData) error {
 			return errors.New("error getting kubernetes object data: " + err.Error())
 		}
 	}
-	if strings.ToLower(r.Payload.Data.ClusterConnect.Action.RequestType) == "logs" {
+	if strings.ToLower(r.Action.RequestType) == "logs" {
 		podRequest := types.PodLogRequest{
-			RequestID: r.Payload.Data.ClusterConnect.ProjectID,
+			RequestID: r.ProjectID,
 		}
 
-		err := json.Unmarshal([]byte(r.Payload.Data.ClusterConnect.Action.ExternalData), &podRequest)
+		err := json.Unmarshal([]byte(r.Action.ExternalData), &podRequest)
 		if err != nil {
-			return errors.New("error reading cluster-action request [external-data]: " + err.Error())
+			return errors.New("error reading cluster-bkp-action request [external-data]: " + err.Error())
 		}
 
 		// send pod logs
-		logrus.Print("LOG REQUEST ", r.Payload.Data.ClusterConnect.Action.ExternalData)
+		logrus.Print("LOG REQUEST ", r.Action.ExternalData)
 		k8s.SendPodLogs(clusterData, podRequest)
-	} else if strings.Index("create update delete get", strings.ToLower(r.Payload.Data.ClusterConnect.Action.RequestType)) >= 0 {
-		_, err := k8s.ClusterOperations(r.Payload.Data.ClusterConnect.Action.K8SManifest, r.Payload.Data.ClusterConnect.Action.RequestType, r.Payload.Data.ClusterConnect.Action.Namespace)
+	} else if strings.Index("create update delete get", strings.ToLower(r.Action.RequestType)) >= 0 {
+		_, err := k8s.ClusterOperations(r.Action.K8SManifest, r.Action.RequestType, r.Action.Namespace)
 		if err != nil {
-			return errors.New("error performing cluster operation: " + err.Error())
+			return errors.New("error performing cluster-bkp operation: " + err.Error())
 		}
-	} else if strings.Index("workflow_delete workflow_sync", strings.ToLower(r.Payload.Data.ClusterConnect.Action.RequestType)) >= 0 {
-		err := utils.WorkflowRequest(clusterData, r.Payload.Data.ClusterConnect.Action.RequestType, r.Payload.Data.ClusterConnect.Action.ExternalData)
+	} else if strings.Index("workflow_delete workflow_sync", strings.ToLower(r.Action.RequestType)) >= 0 {
+		err := utils.WorkflowRequest(clusterData, r.Action.RequestType, r.Action.ExternalData)
 		if err != nil {
 			return errors.New("error performing events operation: " + err.Error())
 		}

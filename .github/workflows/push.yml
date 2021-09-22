@@ -173,7 +173,7 @@ jobs:
           IMG_TAG: ${IMG_TAG}
           PLATFORMS: ${{ secrets.PLATFORMS }}
           REPONAME: ${{ secrets.REPONAME }}
-          DIRECTORY: "cluster-agents/subscriber/"
+          DIRECTORY: "cluster-bkp-agents/subscriber/"
         run: |
           source env-vars
           make push-portal-component
@@ -211,7 +211,7 @@ jobs:
           IMG_TAG: ${IMG_TAG}
           PLATFORMS: ${{ secrets.PLATFORMS }}
           REPONAME: ${{ secrets.REPONAME }}
-          DIRECTORY: "cluster-agents/event-tracker/"
+          DIRECTORY: "cluster-bkp-agents/event-tracker/"
         run: |
           source env-vars
           make push-portal-component

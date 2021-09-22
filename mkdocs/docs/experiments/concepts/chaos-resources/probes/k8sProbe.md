@@ -494,7 +494,7 @@ Use the following example to tune this:
 
 [embedmd]:# (https://raw.githubusercontent.com/litmuschaos/litmus/master/mkdocs/docs/experiments/concepts/chaos-resources/probes/k8sProbe/present-operation.yaml yaml)
 ```yaml
-# verify the existance of the resource matched with the given inputs inside cluster
+# verify the existance of the resource matched with the given inputs inside cluster-bkp
 apiVersion: litmuschaos.io/v1alpha1
 kind: ChaosEngine
 metadata:
@@ -544,7 +544,7 @@ Use the following example to tune this:
 
 [embedmd]:# (https://raw.githubusercontent.com/litmuschaos/litmus/master/mkdocs/docs/experiments/concepts/chaos-resources/probes/k8sProbe/absent-operation.yaml yaml)
 ```yaml
-# verify that the no resource should be present in cluster with the given inputs
+# verify that the no resource should be present in cluster-bkp with the given inputs
 apiVersion: litmuschaos.io/v1alpha1
 kind: ChaosEngine
 metadata:

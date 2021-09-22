@@ -29,7 +29,7 @@ spec:
     name: v1
     schema:
       openAPIV3Schema:
-        description: Alertmanager describes an Alertmanager cluster.
+        description: Alertmanager describes an Alertmanager cluster-bkp.
         properties:
           apiVersion:
             description: 'APIVersion defines the versioned schema of this representation
@@ -45,11 +45,11 @@ spec:
             type: object
           spec:
             description: 'Specification of the desired behavior of the Alertmanager
-              cluster. More info: https://github.com/kubernetes/community/blob/master/contributors/devel/sig-architecture/api-conventions.md#spec-and-status'
+              cluster-bkp. More info: https://github.com/kubernetes/community/blob/master/contributors/devel/sig-architecture/api-conventions.md#spec-and-status'
             properties:
               additionalPeers:
                 description: AdditionalPeers allows injecting a set of additional
-                  Alertmanagers to peer with to form a highly available cluster.
+                  Alertmanagers to peer with to form a highly available cluster-bkp.
                 items:
                   type: string
                 type: array
@@ -649,7 +649,7 @@ spec:
                 type: string
               clusterAdvertiseAddress:
                 description: 'ClusterAdvertiseAddress is the explicit address to advertise
-                  in cluster. Needs to be provided for non RFC1918 [1] (public) addresses.
+                  in cluster-bkp. Needs to be provided for non RFC1918 [1] (public) addresses.
                   [1] RFC1918: https://tools.ietf.org/html/rfc1918'
                 type: string
               configMaps:
@@ -2844,8 +2844,8 @@ spec:
                 description: Priority class assigned to the Pods
                 type: string
               replicas:
-                description: Size is the expected size of the alertmanager cluster.
-                  The controller will eventually make the size of the running cluster
+                description: Size is the expected size of the alertmanager cluster-bkp.
+                  The controller will eventually make the size of the running cluster-bkp
                   equal to the expected size.
                 format: int32
                 type: integer
@@ -3323,7 +3323,7 @@ spec:
                   type: object
                 type: array
               version:
-                description: Version the cluster should be on.
+                description: Version the cluster-bkp should be on.
                 type: string
               volumeMounts:
                 description: VolumeMounts allows configuration of additional VolumeMounts
@@ -3596,7 +3596,7 @@ spec:
                         driver:
                           description: Driver is the name of the CSI driver that handles
                             this volume. Consult with your admin for the correct name
-                            as registered in the cluster.
+                            as registered in the cluster-bkp.
                           type: string
                         fsType:
                           description: Filesystem type to mount. Ex. "ext4", "xfs",
@@ -4567,13 +4567,13 @@ spec:
                 type: array
             type: object
           status:
-            description: 'Most recent observed status of the Alertmanager cluster.
+            description: 'Most recent observed status of the Alertmanager cluster-bkp.
               Read-only. Not included when requesting from the apiserver, only from
               the Prometheus Operator API itself. More info: https://github.com/kubernetes/community/blob/master/contributors/devel/sig-architecture/api-conventions.md#spec-and-status'
             properties:
               availableReplicas:
                 description: Total number of available pods (ready for at least minReadySeconds)
-                  targeted by this Alertmanager cluster.
+                  targeted by this Alertmanager cluster-bkp.
                 format: int32
                 type: integer
               paused:
@@ -4582,17 +4582,17 @@ spec:
                 type: boolean
               replicas:
                 description: Total number of non-terminated pods targeted by this
-                  Alertmanager cluster (their labels match the selector).
+                  Alertmanager cluster-bkp (their labels match the selector).
                 format: int32
                 type: integer
               unavailableReplicas:
                 description: Total number of unavailable pods targeted by this Alertmanager
-                  cluster.
+                  cluster-bkp.
                 format: int32
                 type: integer
               updatedReplicas:
                 description: Total number of non-terminated pods targeted by this
-                  Alertmanager cluster that have the desired version spec.
+                  Alertmanager cluster-bkp that have the desired version spec.
                 format: int32
                 type: integer
             required:

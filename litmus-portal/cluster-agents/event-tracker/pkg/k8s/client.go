@@ -11,7 +11,7 @@ import (
 var KubeConfig = os.Getenv("KUBE_CONFIG")
 
 func GetKubeConfig() (*rest.Config, error) {
-	// Use in-cluster config if kubeconfig path is not specified
+	// Use in-cluster-bkp config if kubeconfig path is not specified
 	if KubeConfig == "" {
 		return rest.InClusterConfig()
 	}

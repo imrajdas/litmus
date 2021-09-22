@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
+	"github.com/streadway/amqp"
 	"log"
 	"net/http"
 	"os"
@@ -195,32 +196,32 @@ func MQOps(agentID string) (string, error){
 
 	defer resp.Body.Close()
 
-	//logrus.Print(agentID)
-	//conn, err := amqp.Dial("amqp://server:server@localhost:5672/"+agentID)
-	//if err != nil {
-	//	logrus.Print(err)
-	//}
-	//defer conn.Close()
-	//
-	//logrus.Print("Successfully Connected To our RabbitMQ Instance")
-	//
-	//ch, err := conn.Channel()
-	//if err != nil {
-	//	logrus.Print(err)
-	//}
-	//
-	//_, err = ch.QueueDeclare(
-	//	agentID + "-queue",
-	//	false,
-	//	false,
-	//	false,
-	//	false,
-	//	nil,
-	//)
-	//if err != nil {
-	//	logrus.Print(err)
-	//	panic(err)
-	//}
+	logrus.Print(agentID)
+	conn, err := amqp.Dial("amqp://server:server@localhost:5672/"+agentID)
+	if err != nil {
+		logrus.Print(err)
+	}
+	defer conn.Close()
+
+	logrus.Print("Successfully Connected To our RabbitMQ Instance")
+
+	ch, err := conn.Channel()
+	if err != nil {
+		logrus.Print(err)
+	}
+
+	_, err = ch.QueueDeclare(
+		agentID + "-queue",
+		false,
+		false,
+		false,
+		false,
+		nil,
+	)
+	if err != nil {
+		logrus.Print(err)
+		panic(err)
+	}
 
 	return password, nil
 }
@@ -273,7 +274,7 @@ func ClusterRegister(input model.ClusterInput) (*model.ClusterRegResponse, error
 		Token:          token,
 		IsRemoved:      false,
 		NodeSelector:   input.NodeSelector,
-		MQ_URL: "amqp://localhost:5672",
+		MQ_URL: "new-rabbit.default.svc.cluster.local:5672",
 		MQ_PASS: pass,
 		MQ_USER: clusterID,
 	}
@@ -284,7 +285,6 @@ func ClusterRegister(input model.ClusterInput) (*model.ClusterRegResponse, error
 	}
 
 	logrus.Print("New Agent Registered with ID: ", clusterID, " PROJECT_ID: ", input.ProjectID)
-
 
 	return &model.ClusterRegResponse{
 		ClusterID:   newCluster.ClusterID,

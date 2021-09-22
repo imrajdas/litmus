@@ -242,7 +242,7 @@ func applyRequest(requestType string, obj *unstructured.Unstructured) (*unstruct
 	return nil, fmt.Errorf("err: %v\n", "Invalid Request")
 }
 
-// This function handles cluster operations
+// This function handles cluster-bkp operations
 func ClusterOperations(manifest string, requestType string, namespace string) (*unstructured.Unstructured, error) {
 
 	// Converting JSON to YAML and store it in yamlStr variable
@@ -278,7 +278,7 @@ func ClusterOperations(manifest string, requestType string, namespace string) (*
 		// namespaced resources should specify the namespace
 		dr = dynamicClient.Resource(mapping.Resource).Namespace(namespace)
 	} else {
-		// for cluster-wide resources
+		// for cluster-bkp-wide resources
 		dr = dynamicClient.Resource(mapping.Resource)
 	}
 

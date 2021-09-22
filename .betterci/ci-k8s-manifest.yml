@@ -4,7 +4,7 @@ kind: ConfigMap
 metadata:
   name: litmus-portal-admin-config
 data:
-  AgentScope: cluster
+  AgentScope: cluster-bkp
   AgentNamespace: litmus
   DataBaseServer: "mongodb://mongo-service:27017"
   JWTSecret: "litmus-portal@123"
@@ -92,7 +92,7 @@ spec:
                 fieldRef:
                   fieldPath: metadata.namespace
             - name: PORTAL_SCOPE
-              value: "cluster"
+              value: "cluster-bkp"
             - name: SUBSCRIBER_IMAGE
               value: #{subscriber}
             - name: ARGO_SERVER_IMAGE

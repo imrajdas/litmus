@@ -10,10 +10,10 @@ metadata:
 #    percona.com/issue-vault-token: "true"
 spec:
   crVersion: 1.6.0
-  secretsName: my-cluster-secrets
+  secretsName: my-cluster-bkp-secrets
   vaultSecretName: keyring-secret-vault
-  sslSecretName: my-cluster-ssl
-  sslInternalSecretName: my-cluster-ssl-internal
+  sslSecretName: my-cluster-bkp-ssl
+  sslInternalSecretName: my-cluster-bkp-ssl-internal
   logCollectorSecretName: my-log-collector-secrets
   disableHookValidation: true
   #  tls:
@@ -34,7 +34,7 @@ spec:
     schedule: "0 4 * * *"
   pxc:
     size: 3
-    image: percona/percona-xtradb-cluster:8.0.20-11.1
+    image: percona/percona-xtradb-cluster-bkp:8.0.20-11.1
     #    autoRecovery: false
     #    schedulerName: mycustom-scheduler
     #    readinessDelaySec: 15
@@ -64,7 +64,7 @@ spec:
     #      runAsUser: 1001
     #      runAsGroup: 1001
     #      supplementalGroups: [1001]
-    #    serviceAccountName: percona-xtradb-cluster-operator-workload
+    #    serviceAccountName: percona-xtradb-cluster-bkp-operator-workload
     #    imagePullPolicy: Always
     resources:
       requests:
@@ -112,7 +112,7 @@ spec:
   haproxy:
     enabled: true
     size: 3
-    image: percona/percona-xtradb-cluster-operator:1.6.0-haproxy
+    image: percona/percona-xtradb-cluster-bkp-operator:1.6.0-haproxy
     #    imagePullPolicy: Always
     #    schedulerName: mycustom-scheduler
     #    configuration: |
@@ -169,7 +169,7 @@ spec:
     #      limits:
     #        memory: 2G
     #        cpu: 600m
-    #    serviceAccountName: percona-xtradb-cluster-operator-workload
+    #    serviceAccountName: percona-xtradb-cluster-bkp-operator-workload
     affinity:
       antiAffinityTopologyKey: "kubernetes.io/hostname"
     #      advanced:
@@ -198,7 +198,7 @@ spec:
   proxysql:
     enabled: false
     size: 3
-    image: percona/percona-xtradb-cluster-operator:1.6.0-proxysql
+    image: percona/percona-xtradb-cluster-bkp-operator:1.6.0-proxysql
     #    imagePullPolicy: Always
     #    configuration: |
     #      datadir="/var/lib/proxysql"
@@ -275,7 +275,7 @@ spec:
     #      limits:
     #        memory: 2G
     #        cpu: 600m
-    #    serviceAccountName: percona-xtradb-cluster-operator-workload
+    #    serviceAccountName: percona-xtradb-cluster-bkp-operator-workload
     affinity:
       antiAffinityTopologyKey: "kubernetes.io/hostname"
     #      advanced:
@@ -314,7 +314,7 @@ spec:
   #     service.beta.kubernetes.io/aws-load-balancer-backend-protocol: http
   logcollector:
     enabled: true
-    image: percona/percona-xtradb-cluster-operator:1.6.0-logcollector
+    image: percona/percona-xtradb-cluster-bkp-operator:1.6.0-logcollector
   #    configuration: |
   #      [OUTPUT]
   #           Name  es
@@ -339,8 +339,8 @@ spec:
   #        memory: 200M
   #        cpu: 500m
   backup:
-    image: percona/percona-xtradb-cluster-operator:1.6.0-pxc8.0-backup
-    #    serviceAccountName: percona-xtradb-cluster-operator
+    image: percona/percona-xtradb-cluster-bkp-operator:1.6.0-pxc8.0-backup
+    #    serviceAccountName: percona-xtradb-cluster-bkp-operator
     #    imagePullSecrets:
     #      - name: private-registry-credentials
     pitr:
@@ -384,7 +384,7 @@ spec:
         #          supplementalGroups: [1001, 1002, 1003]
         s3:
           bucket: S3-BACKUP-BUCKET-NAME-HERE
-          credentialsSecret: my-cluster-name-backup-s3
+          credentialsSecret: my-cluster-bkp-name-backup-s3
           region: us-west-2
       fs-pvc:
         type: filesystem

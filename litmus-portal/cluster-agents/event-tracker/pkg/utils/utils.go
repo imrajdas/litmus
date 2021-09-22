@@ -9,7 +9,7 @@ import (
 	"io/ioutil"
 
 	"github.com/jmespath/go-jmespath"
-	litmuschaosv1 "github.com/litmuschaos/litmus/litmus-portal/cluster-agents/event-tracker/api/v1"
+	litmuschaosv1 "github.com/litmuschaos/litmus/litmus-portal/cluster-bkp-agents/event-tracker/api/v1"
 	"github.com/litmuschaos/litmus/litmus-portal/cluster-agents/event-tracker/pkg/k8s"
 	v1 "k8s.io/api/apps/v1"
 	k8sErrors "k8s.io/apimachinery/pkg/api/errors"

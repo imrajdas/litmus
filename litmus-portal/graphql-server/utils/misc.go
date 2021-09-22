@@ -123,8 +123,8 @@ func ManifestParser(cluster dbSchemaCluster.Cluster, rootPath string, subscriber
 		newContent = strings.Replace(newContent, "#{MQ_PASSWORD}", cluster.MQ_PASS, -1)
 
 		newContent = strings.Replace(newContent, "#{CLUSTER_ID}", cluster.ClusterID, -1)
-		newContent = strings.Replace(newContent, "#{ACCESS_KEY}", cluster.AccessKey, -1)
-		newContent = strings.Replace(newContent, "#{SERVER_ADDR}", subscriberConfig.GQLServerURI, -1)
+		//newContent = strings.Replace(newContent, "#{ACCESS_KEY}", cluster.AccessKey, -1)
+		//newContent = strings.Replace(newContent, "#{SERVER_ADDR}", subscriberConfig.GQLServerURI, -1)
 		newContent = strings.Replace(newContent, "#{SUBSCRIBER-IMAGE}", subscriberConfig.SubscriberImage, -1)
 		newContent = strings.Replace(newContent, "#{EVENT-TRACKER-IMAGE}", subscriberConfig.EventTrackerImage, -1)
 		newContent = strings.Replace(newContent, "#{AGENT-NAMESPACE}", AgentNamespace, -1)
@@ -136,7 +136,7 @@ func ManifestParser(cluster dbSchemaCluster.Cluster, rootPath string, subscriber
 		newContent = strings.Replace(newContent, "#{LITMUS-CHAOS-RUNNER}", subscriberConfig.ChaosRunnerImage, -1)
 		newContent = strings.Replace(newContent, "#{LITMUS-CHAOS-EXPORTER}", subscriberConfig.ChaosExporterImage, -1)
 		newContent = strings.Replace(newContent, "#{ARGO-CONTAINER-RUNTIME-EXECUTOR}", subscriberConfig.ContainerRuntimeExecutor, -1)
-		newContent = strings.Replace(newContent, "#{AGENT-DEPLOYMENTS}", subscriberConfig.AgentDeployments, -1)
+		//newContent = strings.Replace(newContent, "#{AGENT-DEPLOYMENTS}", subscriberConfig.AgentDeployments, -1)
 		newContent = strings.Replace(newContent, "#{VERSION}", subscriberConfig.Version, -1)
 
 		if cluster.NodeSelector != nil {

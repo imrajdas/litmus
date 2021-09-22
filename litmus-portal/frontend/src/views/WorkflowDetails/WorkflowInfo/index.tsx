@@ -110,7 +110,7 @@ const WorkflowInfo: React.FC<WorkflowInfoProps> = ({
           <div className={classes.section}>
             <div className={classes.subCategorySection}>
               <Typography className={classes.subCategorySectionTitle}>
-                {t('workflowDetailsView.workflowInfo.targets.cluster')}
+                {t('workflowDetailsView.workflowInfo.targets.cluster-bkp')}
               </Typography>
               <div>{cluster_name}</div>
             </div>

@@ -39,7 +39,7 @@ func WorkflowRequest(clusterData map[string]string, requestType string, external
 			return err
 		}
 
-		// If Workflow is delete/not present in the cluster
+		// If Workflow is delete/not present in the cluster-bkp
 		if wfOb == nil {
 			logrus.Info("workflow not available for workflowid:" + extData.WorkflowID + ", workflow_run_id:" + extData.WorkflowRunID)
 			var evt = types.WorkflowEvent{

@@ -10,7 +10,7 @@ spec:
   monitoring: true
   appinfo:
     appns: "pxc"
-    applabel: "app.kubernetes.io/name=percona-xtradb-cluster"
+    applabel: "app.kubernetes.io/name=percona-xtradb-cluster-bkp"
     appkind: "statefulset"
   chaosServiceAccount: litmus-admin
   experiments:

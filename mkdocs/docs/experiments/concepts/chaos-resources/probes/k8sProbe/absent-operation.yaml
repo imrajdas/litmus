@@ -1,4 +1,4 @@
-# verify that the no resource should be present in cluster with the given inputs
+# verify that the no resource should be present in cluster-bkp with the given inputs
 apiVersion: litmuschaos.io/v1alpha1
 kind: ChaosEngine
 metadata:

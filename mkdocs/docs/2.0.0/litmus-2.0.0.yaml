@@ -111,7 +111,7 @@ subjects:
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRole
 metadata:
-  name: litmus-cluster-scope-for-litmusportal-server
+  name: litmus-cluster-bkp-scope-for-litmusportal-server
   labels:
     app.kubernetes.io/name: litmus
     # provide unique instance-id if applicable
@@ -120,7 +120,7 @@ metadata:
     app.kubernetes.io/component: operator-clusterrole
     app.kubernetes.io/part-of: litmus
     app.kubernetes.io/managed-by: kubectl
-    name: litmus-cluster-scope-for-litmusportal-server
+    name: litmus-cluster-bkp-scope-for-litmusportal-server
 rules:
   - apiGroups: [""]
     resources: [replicationcontrollers, secrets]
@@ -150,7 +150,7 @@ rules:
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRoleBinding
 metadata:
-  name: litmus-cluster-scope-crb-for-litmusportal-server
+  name: litmus-cluster-bkp-scope-crb-for-litmusportal-server
   labels:
     app.kubernetes.io/name: litmus
     # provide unique instance-id if applicable
@@ -159,11 +159,11 @@ metadata:
     app.kubernetes.io/component: operator-clusterrolebinding
     app.kubernetes.io/part-of: litmus
     app.kubernetes.io/managed-by: kubectl
-    name: litmus-cluster-scope-crb-for-litmusportal-server
+    name: litmus-cluster-bkp-scope-crb-for-litmusportal-server
 roleRef:
   apiGroup: rbac.authorization.k8s.io
   kind: ClusterRole
-  name: litmus-cluster-scope-for-litmusportal-server
+  name: litmus-cluster-bkp-scope-for-litmusportal-server
 subjects:
   - kind: ServiceAccount
     name: litmus-server-account
@@ -461,7 +461,7 @@ metadata:
   name: litmus-portal-admin-config
   namespace: litmus
 data:
-  AgentScope: cluster
+  AgentScope: cluster-bkp
   AgentNamespace: litmus
   DataBaseServer: "mongodb://mongo-service:27017"
   JWTSecret: "litmus-portal@123"
@@ -576,7 +576,7 @@ spec:
                   name: litmus-portal-admin-config
                   key: DB_PASSWORD
             - name: PORTAL_SCOPE
-              value: "cluster"
+              value: "cluster-bkp"
             - name: SUBSCRIBER_IMAGE
               value: "litmuschaos/litmusportal-subscriber:2.0.0"
             - name: EVENT_TRACKER_IMAGE

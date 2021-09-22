@@ -8,20 +8,33 @@ type OperationMessage struct {
 	Type    string          `json:"type"`
 }
 
+//type RawData struct {
+//	Payload Payload `json:"payload"`
+//	Type    string  `json:"type"`
+//
+//}
+
 type RawData struct {
-	Payload Payload `json:"payload"`
-	Type    string  `json:"type"`
+	ProjectID string `json:"project_id"`
+	Action ActionStruct `json:"action"`
 }
 
-type Payload struct {
-	Errors interface{} `json:"errors"`
-	Data   Data        `json:"data"`
+type ActionStruct struct {
+	RequestType string `json:"request_type"`
+	K8SManifest string `json:"k8s_manifest"`
+	Namespace string `json:"namespace"`
+	ExternalData string `json:"external_data"`
 }
-
-type Data struct {
-	ClusterConfirm ClusterConfirm `json:"clusterConfirm"`
-	ClusterConnect ClusterConnect `json:"clusterConnect"`
-}
+//
+//type Payload struct {
+//	Errors interface{} `json:"errors"`
+//	Data   Data        `json:"data"`
+//}
+//
+//type Data struct {
+//	ClusterConfirm ClusterConfirm `json:"clusterConfirm"`
+//	ClusterConnect ClusterConnect `json:"clusterConnect"`
+//}
 
 type ClusterConfirm struct {
 	IsClusterConfirmed bool   `json:isClusterConfirmed`

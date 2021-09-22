@@ -45,7 +45,7 @@ spec:
             type: object
           spec:
             description: 'Specification of the desired behavior of the Prometheus
-              cluster. More info: https://github.com/kubernetes/community/blob/master/contributors/devel/sig-architecture/api-conventions.md#spec-and-status'
+              cluster-bkp. More info: https://github.com/kubernetes/community/blob/master/contributors/devel/sig-architecture/api-conventions.md#spec-and-status'
             properties:
               additionalAlertManagerConfigs:
                 description: 'AdditionalAlertManagerConfigs allows specifying a key
@@ -903,7 +903,7 @@ spec:
               apiserverConfig:
                 description: APIServerConfig allows specifying a host and auth methods
                   to access apiserver. If left empty, Prometheus is assumed to run
-                  inside of the cluster and will discover API servers automatically
+                  inside of the cluster-bkp and will discover API servers automatically
                   and use the pod's CA certificate and bearer token file at /var/run/secrets/kubernetes.io/serviceaccount/.
                 properties:
                   basicAuth:
@@ -5190,7 +5190,7 @@ spec:
                         driver:
                           description: Driver is the name of the CSI driver that handles
                             this volume. Consult with your admin for the correct name
-                            as registered in the cluster.
+                            as registered in the cluster-bkp.
                           type: string
                         fsType:
                           description: Filesystem type to mount. Ex. "ext4", "xfs",
@@ -6165,7 +6165,7 @@ spec:
                 type: boolean
             type: object
           status:
-            description: 'Most recent observed status of the Prometheus cluster. Read-only.
+            description: 'Most recent observed status of the Prometheus cluster-bkp. Read-only.
               Not included when requesting from the apiserver, only from the Prometheus
               Operator API itself. More info: https://github.com/kubernetes/community/blob/master/contributors/devel/sig-architecture/api-conventions.md#spec-and-status'
             properties:

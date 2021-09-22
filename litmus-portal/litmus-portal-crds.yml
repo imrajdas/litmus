@@ -789,7 +789,7 @@ spec:
                 type: string
               time_stamp:
                 description: 'INSERT ADDITIONAL STATUS FIELD - define observed state
-                  of cluster Important: Run "make" to regenerate code after modifying
+                  of cluster-bkp Important: Run "make" to regenerate code after modifying
                   this file'
                 type: string
               workflow_id:

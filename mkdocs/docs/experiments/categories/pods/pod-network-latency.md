@@ -260,7 +260,7 @@ spec:
           value: '8.8.8.8,192.168.5.6'
         # supports comma separated destination hosts
         - name: DESTINATION_HOSTS
-          value: 'nginx.default.svc.cluster.local,google.com'
+          value: 'nginx.default.svc.cluster-bkp.local,google.com'
         - name: TOTAL_CHAOS_DURATION
           value: '60'
 ```

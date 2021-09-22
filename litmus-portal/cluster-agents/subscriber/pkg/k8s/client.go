@@ -6,13 +6,16 @@ import (
 	"k8s.io/client-go/kubernetes"
 	"k8s.io/client-go/rest"
 	"k8s.io/client-go/tools/clientcmd"
+	"os"
 )
 
 var KubeConfig *string
 
-//getKubeConfig setup the config for access cluster resource
+//getKubeConfig setup the config for access cluster-bkp resource
 func GetKubeConfig() (*rest.Config, error) {
-	// Use in-cluster config if kubeconfig path is not specified
+	// Use in-cluster-bkp config if kubeconfig path is not specified
+	kc := os.Getenv("KUBECONFIG")
+	KubeConfig = &kc
 	if *KubeConfig == "" {
 		return rest.InClusterConfig()
 	}

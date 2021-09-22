@@ -493,7 +493,7 @@ monitoringDashboard:
     mainHeading-1: Workflow
     mainHeading-2: now
     subHeading: Worflow dashboards are available once the workflows are run
-    description: Create complex chaos workflow, automate them and monitor the variations in resilience levels. You can use this Kubernetes cluster to create new reliability workflows and compliance reports
+    description: Create complex chaos workflow, automate them and monitor the variations in resilience levels. You can use this Kubernetes cluster-bkp to create new reliability workflows and compliance reports
     buttonText: Schedule a workflow
   configureBanner:
     case-0:
@@ -538,14 +538,14 @@ workflowDetails:
 homeViews:
   landingHome:
     heading: Deploy your first agent
-    description: A Kubernetes cluster consists of a set of worker machines, called nodes, that run containerized applications. Every cluster has at least one worker node. The control plane manages the worker nodes and the Pods in the cluster. In production environments, the control plane usually runs across multiple computers and a cluster usually runs multiple nodes, providing fault-tolerance and high availability.
+    description: A Kubernetes cluster-bkp consists of a set of worker machines, called nodes, that run containerized applications. Every cluster-bkp has at least one worker node. The control plane manages the worker nodes and the Pods in the cluster-bkp. In production environments, the control plane usually runs across multiple computers and a cluster-bkp usually runs multiple nodes, providing fault-tolerance and high availability.
     deploy: Deploy
     agentDeployModal:
       heading: Connect an agent
-      firstStep: 1. Open the cluster console
+      firstStep: 1. Open the cluster-bkp console
       secondStep: 2. Download
       litmusctl: litmusctl
-      thirdStep: 3. Paste and run the following command into the cluster console
+      thirdStep: 3. Paste and run the following command into the cluster-bkp console
       agentRegister: $ litmusctl create agent
       copy: Copy
       done: Done
@@ -559,7 +559,7 @@ homeViews:
     error: Error fetching the data!
     noWorkflow:
       heading: Schedule your first Litmus workflow
-      description: Now it is successfully running on your Kubernetes cluster. Once you schedule chaos workflows, reliability statistics will be displayed here.
+      description: Now it is successfully running on your Kubernetes cluster-bkp. Once you schedule chaos workflows, reliability statistics will be displayed here.
       schedule: Schedule a workflow
       explore: Explore pre defined workflows
     recentWorkflowRuns:
@@ -574,7 +574,7 @@ homeViews:
       schedule: Schedule workflow
     agentInfoContainer:
       agent: Agent
-      description: Cloud native chaos engineering can be setup on this cluster using Litmus Chaos
+      description: Cloud native chaos engineering can be setup on this cluster-bkp using Litmus Chaos
       deploy: Deploy a new Agent
 
 chaosWorkflows:
@@ -978,7 +978,7 @@ createWorkflow:
       gotIt: Got it
     resultTable:
       header: Simulate the workflow run and see the suggested reliability score
-      headerDesc: workflow1 K8S conformance test on Ignite cluster
+      headerDesc: workflow1 K8S conformance test on Ignite cluster-bkp
       info: Tips from Litmus Portal
       tips: When you set the test result, then pay attention to the total values of the total score. This will help you in setting up your tests, getting the maximum result and the correct operation of the test in the future.
       points: points
@@ -1172,9 +1172,9 @@ targets:
     copying: Command copied to clipboard
   newTarget:
     head: Connect a new target on your devices
-    head1: Open the cluster console
+    head1: Open the cluster-bkp console
     head2: Download litmusctl
-    head3: Paste and Run the following command into the cluster console
+    head3: Paste and Run the following command into the cluster-bkp console
   modalDelete:
     head1: Are you sure to
     head2: disconnect the current
@@ -1231,7 +1231,7 @@ workflowAgent:
   header:
     chooseAgent: Choose Agent to send the Litmus workflow to
     creatingNew: You are creating a new Litmus workflow
-    selectAgent: Select a target Kubernetes cluster to run this workflow
+    selectAgent: Select a target Kubernetes cluster-bkp to run this workflow
   search:
     placeholder: Search
   connectAgent: Connect an agent to start scheduling workflows
@@ -1433,7 +1433,7 @@ usage:
     projectSubtitle: Total number of Litmus projects.
     agentHeader: Agents
     agentSubtitle: Total number of ChaosAgents connected to ChaosCenter.
-    agentClusterScope: cluster scope
+    agentClusterScope: cluster-bkp scope
     agentNamespaceScope: namespace scope
     workflowScheduleHeader: Workflow Schedules
     workflowScheduleSubtitle: Total number of scheduled workflows.

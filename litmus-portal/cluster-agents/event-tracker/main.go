@@ -29,7 +29,7 @@ import (
 
 	rt "runtime"
 
-	eventtrackerv1 "github.com/litmuschaos/litmus/litmus-portal/cluster-agents/event-tracker/api/v1"
+	eventtrackerv1 "github.com/litmuschaos/litmus/litmus-portal/cluster-bkp-agents/event-tracker/api/v1"
 	clientgoscheme "k8s.io/client-go/kubernetes/scheme"
 	_ "k8s.io/client-go/plugin/pkg/client/auth/gcp"
 	ctrl "sigs.k8s.io/controller-runtime"
@@ -71,7 +71,7 @@ func init() {
 		factory     informers.SharedInformerFactory
 	)
 
-	if agent_scope == "cluster" {
+	if agent_scope == "cluster-bkp" {
 		factory = informers.NewSharedInformerFactory(clientset, 30*time.Second)
 	} else if agent_scope == "namespace" {
 		factory = informers.NewSharedInformerFactoryWithOptions(clientset, 30*time.Second, informers.WithNamespace(os.Getenv("AGENT_NAMESPACE")))
@@ -109,7 +109,7 @@ func main() {
 			LeaderElection:     enableLeaderElection,
 			LeaderElectionID:   "2b79cec3.litmuschaos.io",
 		})
-	} else if agent_scope == "cluster" {
+	} else if agent_scope == "cluster-bkp" {
 		mgr, err = ctrl.NewManager(ctrl.GetConfigOrDie(), ctrl.Options{
 			Scheme:             scheme,
 			MetricsBindAddress: metricsAddr,

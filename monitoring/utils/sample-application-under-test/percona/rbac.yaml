@@ -1,7 +1,7 @@
 kind: Role
 apiVersion: rbac.authorization.k8s.io/v1beta1
 metadata:
-  name: percona-xtradb-cluster-operator
+  name: percona-xtradb-cluster-bkp-operator
 rules:
   - apiGroups:
       - pxc.percona.com
@@ -96,16 +96,16 @@ rules:
 apiVersion: v1
 kind: ServiceAccount
 metadata:
-  name: percona-xtradb-cluster-operator
+  name: percona-xtradb-cluster-bkp-operator
 ---
 kind: RoleBinding
 apiVersion: rbac.authorization.k8s.io/v1
 metadata:
-  name: service-account-percona-xtradb-cluster-operator
+  name: service-account-percona-xtradb-cluster-bkp-operator
 subjects:
   - kind: ServiceAccount
-    name: percona-xtradb-cluster-operator
+    name: percona-xtradb-cluster-bkp-operator
 roleRef:
   kind: Role
-  name: percona-xtradb-cluster-operator
+  name: percona-xtradb-cluster-bkp-operator
   apiGroup: rbac.authorization.k8s.io

@@ -34,7 +34,7 @@ opting for the default ["restricted"](https://kubernetes.io/docs/concepts/policy
         - 'projected'
         - 'secret'
         - 'downwardAPI'
-        # Assume that persistentVolumes set up by the cluster admin are safe to use.
+        # Assume that persistentVolumes set up by the cluster-bkp admin are safe to use.
         - 'persistentVolumeClaim'
     allowedHostPaths:
         # substitutes this path with an appropriate socket path

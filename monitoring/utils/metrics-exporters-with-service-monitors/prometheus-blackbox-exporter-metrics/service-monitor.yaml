@@ -16,7 +16,7 @@ spec:
         module:
           - http_2xx
         target:
-          - 'podtato-main.litmus.svc.cluster.local:9000'
+          - 'podtato-main.litmus.svc.cluster-bkp.local:9000'
       metricRelabelings:
         - action: replace
           regex: (.*)

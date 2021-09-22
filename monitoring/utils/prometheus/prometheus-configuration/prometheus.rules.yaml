@@ -352,7 +352,7 @@ spec:
         sum(rate(apiserver_request_duration_seconds_sum{subresource!="log",verb!~"LIST|WATCH|WATCHLIST|DELETECOLLECTION|PROXY|CONNECT"}[5m])) without(instance, pod)
         /
         sum(rate(apiserver_request_duration_seconds_count{subresource!="log",verb!~"LIST|WATCH|WATCHLIST|DELETECOLLECTION|PROXY|CONNECT"}[5m])) without(instance, pod)
-      record: cluster:apiserver_request_duration_seconds:mean5m
+      record: cluster-bkp:apiserver_request_duration_seconds:mean5m
     - expr: |
         histogram_quantile(0.99, sum(rate(apiserver_request_duration_seconds_bucket{job="apiserver",subresource!="log",verb!~"LIST|WATCH|WATCHLIST|DELETECOLLECTION|PROXY|CONNECT"}[5m])) without(instance, pod))
       labels:
@@ -723,10 +723,10 @@ spec:
         BY (instance, cpu)) BY (instance)
       record: instance:node_cpu:ratio
     - expr: sum(rate(node_cpu_seconds_total{mode!="idle",mode!="iowait"}[5m]))
-      record: cluster:node_cpu:sum_rate5m
-    - expr: cluster:node_cpu_seconds_total:rate5m / count(sum(node_cpu_seconds_total)
+      record: cluster-bkp:node_cpu:sum_rate5m
+    - expr: cluster-bkp:node_cpu_seconds_total:rate5m / count(sum(node_cpu_seconds_total)
         BY (instance, cpu))
-      record: cluster:node_cpu:ratio
+      record: cluster-bkp:node_cpu:ratio
   - name: kube-prometheus-general.rules
     rules:
     - expr: count without(instance, pod, node) (up == 1)
@@ -1750,7 +1750,7 @@ spec:
         severity: warning
     - alert: AlertmanagerMembersInconsistent
       annotations:
-        message: Alertmanager has not found all other members of the cluster.
+        message: Alertmanager has not found all other members of the cluster-bkp.
       expr: |
         alertmanager_cluster_members{job="alertmanager-main",namespace="monitoring"}
           != on (service) GROUP_LEFT()

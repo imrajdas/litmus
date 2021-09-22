@@ -135,7 +135,7 @@ const TableData: React.FC<TableDataProps> = ({ data, refetchQuery }) => {
   });
 
   /**
-   * Terminate workflow terminates the workflow from the cluster
+   * Terminate workflow terminates the workflow from the cluster-bkp
    */
   const [terminateWorkflow] = useMutation(TERMINATE_WORKFLOW, {
     onCompleted: (data) => {

@@ -51,7 +51,7 @@ rules:
   resources: ["deploymentconfigs"]
   verbs: ["get","list"]
 
-# for operator to perform asset discovery of available resources on the cluster which can be picked as a target for chaos
+# for operator to perform asset discovery of available resources on the cluster-bkp which can be picked as a target for chaos
 - apiGroups: ["apps"]
   resources: ["deployments", "daemonsets", "replicasets", "statefulsets"]
   verbs: ["get","list"]

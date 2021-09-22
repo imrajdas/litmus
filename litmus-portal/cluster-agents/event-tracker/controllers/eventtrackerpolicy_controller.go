@@ -24,7 +24,7 @@ import (
 	"sync"
 
 	"github.com/go-logr/logr"
-	eventtrackerv1 "github.com/litmuschaos/litmus/litmus-portal/cluster-agents/event-tracker/api/v1"
+	eventtrackerv1 "github.com/litmuschaos/litmus/litmus-portal/cluster-bkp-agents/event-tracker/api/v1"
 	"github.com/litmuschaos/litmus/litmus-portal/cluster-agents/event-tracker/pkg/utils"
 	"k8s.io/apimachinery/pkg/api/errors"
 	"k8s.io/apimachinery/pkg/runtime"

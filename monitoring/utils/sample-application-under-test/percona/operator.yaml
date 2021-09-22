@@ -1,15 +1,15 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: percona-xtradb-cluster-operator
+  name: percona-xtradb-cluster-bkp-operator
 spec:
   replicas: 1
   selector:
     matchLabels:
       app.kubernetes.io/component: operator
-      app.kubernetes.io/instance: percona-xtradb-cluster-operator
-      app.kubernetes.io/name: percona-xtradb-cluster-operator
-      app.kubernetes.io/part-of: percona-xtradb-cluster-operator
+      app.kubernetes.io/instance: percona-xtradb-cluster-bkp-operator
+      app.kubernetes.io/name: percona-xtradb-cluster-bkp-operator
+      app.kubernetes.io/part-of: percona-xtradb-cluster-bkp-operator
   strategy:
     rollingUpdate:
       maxUnavailable: 1
@@ -18,13 +18,13 @@ spec:
     metadata:
       labels:
         app.kubernetes.io/component: operator
-        app.kubernetes.io/instance: percona-xtradb-cluster-operator
-        app.kubernetes.io/name: percona-xtradb-cluster-operator
-        app.kubernetes.io/part-of: percona-xtradb-cluster-operator
+        app.kubernetes.io/instance: percona-xtradb-cluster-bkp-operator
+        app.kubernetes.io/name: percona-xtradb-cluster-bkp-operator
+        app.kubernetes.io/part-of: percona-xtradb-cluster-bkp-operator
     spec:
       containers:
         - command:
-            - percona-xtradb-cluster-operator
+            - percona-xtradb-cluster-bkp-operator
           env:
             - name: WATCH_NAMESPACE
               valueFrom:
@@ -37,8 +37,8 @@ spec:
                   apiVersion: v1
                   fieldPath: metadata.name
             - name: OPERATOR_NAME
-              value: percona-xtradb-cluster-operator
-          image: percona/percona-xtradb-cluster-operator:1.6.0
+              value: percona-xtradb-cluster-bkp-operator
+          image: percona/percona-xtradb-cluster-bkp-operator:1.6.0
           imagePullPolicy: Always
           livenessProbe:
             failureThreshold: 3
@@ -46,9 +46,9 @@ spec:
               path: /metrics
               port: metrics
               scheme: HTTP
-          name: percona-xtradb-cluster-operator
+          name: percona-xtradb-cluster-bkp-operator
           ports:
             - containerPort: 8080
               name: metrics
               protocol: TCP
-      serviceAccountName: percona-xtradb-cluster-operator
+      serviceAccountName: percona-xtradb-cluster-bkp-operator
