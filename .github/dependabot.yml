@@ -1,0 +1,27 @@
+version: 2
+updates:
+  - package-ecosystem: "npm"
+    directory: "/litmus-portal/frontend"
+    schedule:
+      interval: "daily"
+    target-branch: "debot-ignore"
+  - package-ecosystem: "gomod"
+    directory: "/litmus-portal/graphql-server"
+    schedule:
+      interval: "daily"
+    target-branch: "debot-ignore"
+  - package-ecosystem: "gomod"
+    directory: "/litmus-portal/authentication"
+    schedule:
+      interval: "daily"
+    target-branch: "debot-ignore"
+  - package-ecosystem: "gomod"
+    directory: "/litmus-portal/cluster-agents/event-tracker"
+    schedule:
+      interval: "daily"
+    target-branch: "debot-ignore"
+  - package-ecosystem: "gomod"
+    directory: "/litmus-portal/cluster-agents/subscriber"
+    schedule:
+      interval: "daily"
+    target-branch: "debot-ignore"
