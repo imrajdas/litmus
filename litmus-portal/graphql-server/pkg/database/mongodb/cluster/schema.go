@@ -26,6 +26,9 @@ type Cluster struct {
 	Tolerations        []*Toleration `bson:"tolerations,omitempty"`
 	StartTime          string        `bson:"start_time"`
 	Version            string        `bson:"version"`
+	MQAddr             string        `json:"mq_addr"`
+	MQUser             string        `json:"mq_user"`
+	MQPass             string        `json:"mq_pass"`
 }
 
 type Toleration struct {

@@ -4,11 +4,6 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"os"
-	"strconv"
-	"strings"
-	"time"
-
 	"github.com/argoproj/argo-workflows/v3/pkg/apis/workflow/v1alpha1"
 	"github.com/ghodss/yaml"
 	"github.com/google/uuid"
@@ -26,10 +21,23 @@ import (
 	dbSchemaWorkflow "github.com/litmuschaos/litmus/litmus-portal/graphql-server/pkg/database/mongodb/workflow"
 	workflowDBOps "github.com/litmuschaos/litmus/litmus-portal/graphql-server/pkg/database/mongodb/workflow"
 	"github.com/litmuschaos/litmus/litmus-portal/graphql-server/utils"
+	"github.com/sirupsen/logrus"
+	"github.com/streadway/amqp"
 	"github.com/tidwall/gjson"
 	"go.mongodb.org/mongo-driver/bson"
 	v1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
+	"os"
+	"strconv"
+	"strings"
+	"time"
+)
+
+var (
+	RMQENDPOINT      = os.Getenv("RMQ_ENDPOINT")
+	RMQPORT          = os.Getenv("RMQ_PORT")
+	RMQAdminUser     = os.Getenv("RMQ_ADMIN_USER")
+	RMQAdminPassword = os.Getenv("RMQ_ADMIN_PASSWORD")
 )
 
 // ProcessWorkflow takes the workflow and processes it as required
@@ -148,9 +156,62 @@ func ProcessWorkflowCreation(input *model.ChaosWorkFlowInput, wfType *dbSchemaWo
 		return err
 	}
 
-	if r != nil {
-		SendWorkflowToSubscriber(input, nil, "create", r)
+	logrus.Info("successfully inserted to workflow collection")
+	//if r != nil {
+	conn, err := amqp.Dial("amqp://" + RMQAdminUser + ":" + RMQAdminPassword + "@" + RMQENDPOINT + ":5672" + "/" + input.ClusterID + "-vhost")
+	if err != nil {
+		logrus.Print(err)
 	}
+	defer conn.Close()
+	ch, err := conn.Channel()
+	if err != nil {
+		logrus.Print(err)
+	}
+
+	defer ch.Close()
+	_, err = ch.QueueDeclare(
+		cluster.ClusterID+"-queue",
+		false,
+		false,
+		false,
+		false,
+		nil,
+	)
+	if err != nil {
+		logrus.Print(err)
+		panic(err)
+	}
+	//
+	newAction := &model.ClusterAction{
+		ProjectID: input.ProjectID,
+		Action: &model.ActionPayload{
+			K8sManifest: input.WorkflowManifest,
+			Namespace:   *cluster.AgentNamespace,
+			RequestType: "create",
+		},
+	}
+
+	json, err := json.Marshal(newAction)
+	if err != nil {
+		logrus.Print(err)
+	}
+
+	//logrus.Print(newAction.Action)
+	err = ch.Publish(
+		"",
+		input.ClusterID+"-queue",
+		false,
+		false,
+		amqp.Publishing{
+			ContentType: "text/plain",
+			Body:        []byte(string(json)),
+		},
+	)
+	if err != nil {
+		logrus.Println(err)
+	}
+	logrus.Println("Successfully Published Message to Queue")
+	//}
 
 	return nil
 }

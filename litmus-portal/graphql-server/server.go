@@ -1,7 +1,9 @@
 package main
 
 import (
+	"bytes"
 	"context"
+	"encoding/json"
 	"fmt"
 	"net"
 	"net/http"
@@ -60,9 +62,92 @@ type Config struct {
 	LitmusChaosExporterImage    string `required:"true" split_words:"true"`
 	ContainerRuntimeExecutor    string `required:"true" split_words:"true"`
 	HubBranchName               string `required:"true" split_words:"true"`
+	RMQEndpoint                 string `required:"true" split_words:"true"`
+	RMQPort                     string `required:"true" split_words:"true"`
+	RMQAdminUser                string `required:"true" split_words:"true"`
+	RMQAdminPassword            string `required:"true" split_words:"true"`
 }
 
 const defaultPort = "8080"
+
+/*
+	req, err := http.NewRequest("PUT", "http://"+RMQENDPOINT+":15672/api/vhosts/"+agentID+"-vhost", nil)
+	if err != nil {
+		return "", err
+	}
+
+	req.SetBasicAuth(RMQAdminUser, RMQAdminPassword)
+	req.Header.Set("Content-Type", "application/json")
+
+	resp, err := http.DefaultClient.Do(req)
+	if err != nil {
+		return "", err
+	}
+
+	if resp.StatusCode == 200 {
+		logrus.Print("Vhost created")
+	}
+
+*/
+type PermissionPayload struct {
+	Configure string `json:"configure"`
+	Write     string `json:"write"`
+	Read      string `json:"read"`
+}
+
+func rabbitMQInit(config Config) error {
+	req, err := http.NewRequest("PUT", "http://"+config.RMQEndpoint+":"+config.RMQPort+"/api/vhosts/admin-vhost", nil)
+	if err != nil {
+		return err
+	}
+
+	req.SetBasicAuth(config.RMQAdminUser, config.RMQAdminPassword)
+	req.Header.Set("Content-Type", "application/json")
+
+	resp, err := http.DefaultClient.Do(req)
+	if err != nil {
+		return err
+	}
+
+	logrus.Print(resp)
+
+	if resp.StatusCode == 200 {
+		logrus.Print("Admin Vhost created")
+	}
+
+	AgentPermissionData := PermissionPayload{
+		Configure: ".*",
+		Write:     ".*",
+		Read:      ".*",
+	}
+
+	payloadBytes, err := json.Marshal(AgentPermissionData)
+	if err != nil {
+		return err
+	}
+	body := bytes.NewReader(payloadBytes)
+
+	req, err = http.NewRequest("PUT", "http://"+config.RMQEndpoint+":15672/api/permissions/admin-vhost/"+config.RMQAdminUser, body)
+	if err != nil {
+		return err
+	}
+
+	req.SetBasicAuth(config.RMQAdminUser, config.RMQAdminPassword)
+	req.Header.Set("Content-Type", "application/json")
+
+	resp, err = http.DefaultClient.Do(req)
+	if err != nil {
+		return err
+	}
+
+	logrus.Print(resp)
+
+	if resp.StatusCode == 200 {
+		logrus.Print("Agent permission created(1)")
+	}
+
+	return nil
+}
 
 func init() {
 	logrus.Printf("Go Version: %s", runtime.Version())
@@ -71,6 +156,11 @@ func init() {
 	var c Config
 
 	err := envconfig.Process("", &c)
+	if err != nil {
+		logrus.Fatal(err)
+	}
+
+	err = rabbitMQInit(c)
 	if err != nil {
 		logrus.Fatal(err)
 	}

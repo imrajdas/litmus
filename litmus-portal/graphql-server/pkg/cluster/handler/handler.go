@@ -1,9 +1,13 @@
 package handler
 
 import (
+	"bytes"
 	"context"
+	"encoding/json"
 	"fmt"
+	"github.com/streadway/amqp"
 	"log"
+	"net/http"
 	"os"
 	"strconv"
 	"strings"
@@ -23,6 +27,203 @@ import (
 	dbOperationsWorkflow "github.com/litmuschaos/litmus/litmus-portal/graphql-server/pkg/database/mongodb/workflow"
 	"github.com/litmuschaos/litmus/litmus-portal/graphql-server/utils"
 )
+
+type PermissionPayload struct {
+	Configure string `json:"configure"`
+	Write     string `json:"write"`
+	Read      string `json:"read"`
+}
+
+type AuthPayload struct {
+	Password string `json:"password"`
+	Tags     string `json:"tags"`
+}
+
+var (
+	RMQENDPOINT      = os.Getenv("RMQ_ENDPOINT")
+	RMQPORT          = os.Getenv("RMQ_PORT")
+	RMQAdminUser     = os.Getenv("RMQ_ADMIN_USER")
+	RMQAdminPassword = os.Getenv("RMQ_ADMIN_PASSWORD")
+)
+
+func RabbitMQOps(agentID string) (string, error) {
+	// create vhost
+	req, err := http.NewRequest("PUT", "http://"+RMQENDPOINT+":15672/api/vhosts/"+agentID+"-vhost", nil)
+	if err != nil {
+		return "", err
+	}
+
+	req.SetBasicAuth(RMQAdminUser, RMQAdminPassword)
+	req.Header.Set("Content-Type", "application/json")
+
+	resp, err := http.DefaultClient.Do(req)
+	if err != nil {
+		return "", err
+	}
+
+	if resp.StatusCode == 200 {
+		logrus.Print("Vhost created")
+	}
+	password := utils.RandomString(5)
+
+	// create user
+	data := AuthPayload{
+		Password: password,
+		Tags:     "none",
+	}
+
+	payloadBytes, err := json.Marshal(data)
+	if err != nil {
+		return "", err
+	}
+	body := bytes.NewReader(payloadBytes)
+
+	req, err = http.NewRequest("PUT", "http://"+RMQENDPOINT+":15672/api/users/"+agentID, body)
+	if err != nil {
+		return "", err
+	}
+	req.SetBasicAuth(RMQAdminUser, RMQAdminPassword)
+	req.Header.Set("Content-Type", "application/json")
+
+	resp, err = http.DefaultClient.Do(req)
+	if err != nil {
+		return "", err
+	}
+
+	logrus.Print(resp)
+
+	if resp.StatusCode == 200 {
+		logrus.Print("User created")
+	}
+
+	AgentPermissionData := PermissionPayload{
+		Configure: ".*",
+		Write:     "",
+		Read:      ".*",
+	}
+
+	payloadBytes, err = json.Marshal(AgentPermissionData)
+	if err != nil {
+		return "", err
+	}
+	body = bytes.NewReader(payloadBytes)
+
+	req, err = http.NewRequest("PUT", "http://"+RMQENDPOINT+":15672/api/permissions/"+agentID+"-vhost/"+agentID, body)
+	if err != nil {
+		return "", err
+	}
+
+	req.SetBasicAuth(RMQAdminUser, RMQAdminPassword)
+	req.Header.Set("Content-Type", "application/json")
+
+	resp, err = http.DefaultClient.Do(req)
+	if err != nil {
+		return "", err
+	}
+
+	logrus.Print(resp)
+
+	if resp.StatusCode == 200 {
+		logrus.Print("Agent permission created(1)")
+	}
+
+	permissionData := PermissionPayload{
+		Configure: ".*",
+		Write:     ".*",
+		Read:      "",
+	}
+
+	payloadBytes, err = json.Marshal(permissionData)
+	if err != nil {
+		return "", err
+	}
+
+	body = bytes.NewReader(payloadBytes)
+
+	req, err = http.NewRequest("PUT", "http://"+RMQENDPOINT+":15672/api/permissions/admin-vhost/"+agentID, body)
+	if err != nil {
+		return "", err
+	}
+
+	req.SetBasicAuth(RMQAdminUser, RMQAdminPassword)
+	req.Header.Set("Content-Type", "application/json")
+
+	resp, err = http.DefaultClient.Do(req)
+	if err != nil {
+		return "", err
+	}
+
+	logrus.Print(resp)
+
+	if resp.StatusCode == 200 {
+		logrus.Print("Agent permission created(2)")
+	}
+
+	defer resp.Body.Close()
+
+	permissionDataforServer := PermissionPayload{
+		Configure: ".*",
+		Write:     ".*",
+		Read:      ".*",
+	}
+
+	payloadBytes, err = json.Marshal(permissionDataforServer)
+	if err != nil {
+		return "", err
+	}
+
+	body = bytes.NewReader(payloadBytes)
+
+	req, err = http.NewRequest("PUT", "http://"+RMQENDPOINT+":15672/api/permissions/"+agentID+"-vhost/"+RMQAdminUser, body)
+	if err != nil {
+		return "", err
+	}
+
+	req.SetBasicAuth(RMQAdminUser, RMQAdminPassword)
+	req.Header.Set("Content-Type", "application/json")
+
+	resp, err = http.DefaultClient.Do(req)
+	if err != nil {
+		return "", err
+	}
+
+	logrus.Print(resp)
+
+	if resp.StatusCode == 200 {
+		logrus.Print("Agent permission created(2)")
+	}
+
+	defer resp.Body.Close()
+
+	logrus.Print(agentID)
+	conn, err := amqp.Dial("amqp://" + RMQAdminUser + ":" + RMQAdminPassword + "@" + RMQENDPOINT + ":5672/" + agentID + "-vhost")
+	if err != nil {
+		logrus.Print(err)
+	}
+	defer conn.Close()
+
+	logrus.Print("Successfully Connected To our RabbitMQ Instance")
+
+	ch, err := conn.Channel()
+	if err != nil {
+		logrus.Print(err)
+	}
+
+	_, err = ch.QueueDeclare(
+		agentID+"-queue",
+		false,
+		false,
+		false,
+		false,
+		nil,
+	)
+	if err != nil {
+		logrus.Print(err)
+		panic(err)
+	}
+
+	return password, nil
+}
 
 // ClusterRegister creates an entry for a new cluster in DB and generates the url used to apply manifest
 func ClusterRegister(input model.ClusterInput) (*model.ClusterRegResponse, error) {
@@ -53,6 +254,11 @@ func ClusterRegister(input model.ClusterInput) (*model.ClusterRegResponse, error
 		return &model.ClusterRegResponse{}, err
 	}
 
+	pass, err := RabbitMQOps(clusterID)
+	if err != nil {
+		return &model.ClusterRegResponse{}, err
+	}
+
 	newCluster := dbSchemaCluster.Cluster{
 		ClusterID:      clusterID,
 		ClusterName:    input.ClusterName,
@@ -74,6 +280,9 @@ func ClusterRegister(input model.ClusterInput) (*model.ClusterRegResponse, error
 		Tolerations:    tolerations,
 		SkipSSL:        input.SkipSsl,
 		StartTime:      strconv.FormatInt(time.Now().Unix(), 10),
+		MQAddr:         RMQENDPOINT + ":5672",
+		MQUser:         clusterID,
+		MQPass:         pass,
 	}
 
 	err = dbOperationsCluster.InsertCluster(newCluster)

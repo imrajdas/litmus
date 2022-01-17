@@ -11,8 +11,6 @@ import (
 	"time"
 
 	"github.com/golang-jwt/jwt"
-	"github.com/litmuschaos/litmus/litmus-portal/graphql-server/pkg/usage"
-
 	"github.com/google/uuid"
 	"github.com/jinzhu/copier"
 	"github.com/litmuschaos/litmus/litmus-portal/graphql-server/graph/generated"
@@ -30,6 +28,7 @@ import (
 	imageRegistryOps "github.com/litmuschaos/litmus/litmus-portal/graphql-server/pkg/image_registry/ops"
 	"github.com/litmuschaos/litmus/litmus-portal/graphql-server/pkg/myhub"
 	myHubOps "github.com/litmuschaos/litmus/litmus-portal/graphql-server/pkg/myhub/ops"
+	"github.com/litmuschaos/litmus/litmus-portal/graphql-server/pkg/usage"
 	"go.mongodb.org/mongo-driver/bson"
 )
 

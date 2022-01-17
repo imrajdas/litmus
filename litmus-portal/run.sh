@@ -23,6 +23,10 @@ export DB_USER=admin
 export DB_PASSWORD=1234
 export VERSION=ci
 export HUB_BRANCH_NAME=v2.0.x
+export RMQ_ENDPOINT="localhost"
+export RMQ_PORT="15672"
+export RMQ_ADMIN_USER="guest"
+export RMQ_ADMIN_PASSWORD="guest"
 export AGENT_DEPLOYMENTS="[\"app=chaos-exporter\", \"name=chaos-operator\", \"app=event-tracker\", \"app=workflow-controller\"]" 
 # Dependency Checks
 dir=($(pwd | tr "/" "\n"))

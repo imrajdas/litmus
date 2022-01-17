@@ -9,6 +9,7 @@ require (
 	github.com/kelseyhightower/envconfig v1.4.0
 	github.com/litmuschaos/chaos-operator v0.0.0-20211109081056-46bcd99c3daf
 	github.com/sirupsen/logrus v1.7.0
+	github.com/streadway/amqp v1.0.0 // indirect
 	gopkg.in/yaml.v2 v2.4.0
 	k8s.io/api v0.22.1
 	k8s.io/apimachinery v0.22.1
