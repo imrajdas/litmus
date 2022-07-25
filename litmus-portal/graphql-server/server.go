@@ -164,6 +164,7 @@ func main() {
 	router.HandleFunc("/file/{key}{path:.yaml}", handlers.FileHandler)
 	router.HandleFunc("/status", handlers.StatusHandler)
 	router.HandleFunc("/workflow_helper_image_version", handlers.WorkflowHelperImageVersionHandler)
+	router.HandleFunc("/version", handlers.WorkflowHelperImageVersionHandler)
 
 	logrus.Printf("connect to http://localhost:%s/ for GraphQL playground", httpPort)
 	logrus.Fatal(http.ListenAndServe(":"+httpPort, router))
