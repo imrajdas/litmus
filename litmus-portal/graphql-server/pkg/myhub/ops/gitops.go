@@ -124,6 +124,7 @@ func (c MyHubConfig) getPrivateChaosChartRepo() (string, error) {
 		SingleBranch:  true,
 		ReferenceName: plumbing.NewBranchReferenceName(c.Branch),
 	})
+
 	if err != nil {
 		_, err = git.PlainClone(ClonePath, false, &git.CloneOptions{
 			Auth:          auth,
