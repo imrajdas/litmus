@@ -1,4 +1,3 @@
-*.go linguist-language=true
-*.sh linguist-language=true
-*.js linguist-language=true
-*.html linguist-language=false
+*.go linguist-language=false
+*.sh linguist-language=false
+*.js linguist-language=false
