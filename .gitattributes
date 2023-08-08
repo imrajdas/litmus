@@ -3,3 +3,4 @@
 *.js linguist-detectable=true
 *.ts linguist-detectable=true
 *.html linguist-detectable=true
+*.tsx linguist-detectable=true
