@@ -1,6 +1,6 @@
-*.go linguist-detectable=false
-*.css linguist-detectable=true
-*.js linguist-detectable=true
-*.ts linguist-detectable=true
-*.html linguist-detectable=true
-*.tsx linguist-detectable=true
+*.go linguist-detectable=true
+*.css linguist-detectable=false
+*.js linguist-detectable=false
+*.ts linguist-detectable=false
+*.html linguist-detectable=false
+*.tsx linguist-detectable=false
