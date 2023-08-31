@@ -19,6 +19,7 @@ type Configurations struct {
 	LitmusChaosOperatorImage    string `required:"true" split_words:"true"`
 	LitmusChaosRunnerImage      string `required:"true" split_words:"true"`
 	LitmusChaosExporterImage    string `required:"true" split_words:"true"`
+	LitmusChaosServerLogFormat  string `split_words:"true" default:"text"`
 	ContainerRuntimeExecutor    string `required:"true" split_words:"true"`
 	HubBranchName               string `required:"true" split_words:"true"`
 	WorkflowHelperImageVersion  string `required:"true" split_words:"true"`
@@ -41,3 +42,20 @@ type Configurations struct {
 }
 
 var Config Configurations
+
+// AgentScope is the scope of the agent
+type AgentScope string
+
+// AgentType is the type of the agent
+type AgentType string
+
+const (
+	// AgentScopeCluster is the cluster scope
+	AgentScopeCluster AgentScope = "cluster"
+	// AgentScopeNamespace is the namespace scope
+	AgentScopeNamespace AgentScope = "namespace"
+	// AgentTypeInternal is the internal agent
+	AgentTypeInternal AgentType = "internal"
+	// AgentTypeExternal is the external agent
+	AgentTypeExternal AgentType = "external"
+)
